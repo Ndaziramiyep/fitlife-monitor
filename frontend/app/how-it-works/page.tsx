@@ -301,7 +301,7 @@ export default function HowItWorksPage() {
                 Experience the power of FitLife Monitor's personalized health insights and AI-powered recommendations.
               </p>
               <Button size="lg" variant="secondary" asChild>
-                <Link href="/signup" legacyBehavior>
+                <Link href="/signup">
                   <div className="flex items-center">
                     Get Started Now <ArrowRight className="ml-2 h-4 w-4" />
                   </div>

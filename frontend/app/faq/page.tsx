@@ -271,7 +271,7 @@ export default function FAQPage() {
                   className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                   asChild
                 >
-                  <Link href="/chatbot" legacyBehavior>
+                  <Link href="/chatbot">
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Ask AI Assistant
                   </Link>

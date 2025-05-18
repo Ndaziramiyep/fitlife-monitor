@@ -117,7 +117,7 @@ export function SiteFooter() {
             <Link
               href="#"
               className="text-muted-foreground hover:text-foreground"
-              legacyBehavior>
+            >
               <div className="flex items-center">
                 <span className="sr-only">Twitter</span>
                 <svg
@@ -139,7 +139,7 @@ export function SiteFooter() {
             <Link
               href="#"
               className="text-muted-foreground hover:text-foreground"
-              legacyBehavior>
+            >
               <div className="flex items-center">
                 <span className="sr-only">Instagram</span>
                 <svg
@@ -163,7 +163,7 @@ export function SiteFooter() {
             <Link
               href="#"
               className="text-muted-foreground hover:text-foreground"
-              legacyBehavior>
+            >
               <div className="flex items-center">
                 <span className="sr-only">GitHub</span>
                 <svg

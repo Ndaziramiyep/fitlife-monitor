@@ -31,18 +31,4 @@ npm run dev
 
 This will start:
 - Frontend on http://localhost:3000
-- Backend on http://localhost:8000
 
-## Running Separately
-
-If you need to run the services separately:
-
-- Frontend only:
-  ```bash
-  npm run frontend
-  ```
-
-- Backend only:
-  ```bash
-  npm run backend
-  ```

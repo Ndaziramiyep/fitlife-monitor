@@ -176,24 +176,9 @@ export default function AdminUsersPage() {
                       </Button>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center">
-                        <Button size="sm" variant="outline" onClick={() => openPermEdit(user)}>
-                          {showPermEdit === user.id ? "Close" : "Grant/Revoke"}
-                        </Button>
-                      </div>
-                      {showPermEdit === user.id && (
-                        <div className="mt-2 p-2 border rounded bg-white shadow max-w-xs">
-                          <div className="flex flex-wrap gap-4 mb-2">
-                            {PERMISSIONS.map(p => (
-                              <label key={p.key} className="flex items-center gap-1">
-                                <input type="checkbox" checked={!!permEditForm[p.key]} onChange={() => handlePermCheckbox(p.key)} /> {p.label}
-                              </label>
-                            ))}
-                          </div>
-                          <Button size="sm" onClick={() => savePermEdit(user.id)}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => setShowPermEdit(null)} className="ml-2">Cancel</Button>
-                        </div>
-                      )}
+                      <Button size="sm" variant={user.is_admin ? "default" : "outline"} disabled>
+                        {user.is_admin ? "Yes" : "No"}
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <Button size="sm" onClick={() => openEdit(user)} className="mr-2">Edit</Button>

@@ -45,4 +45,19 @@ class AdminController extends Controller
             'recent_users' => $recentUsers
         ]);
     }
+
+    // Helper method to grant admin status and update is_admin
+    public function grantAdmin($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->is_admin = true;
+        $user->permissions = [
+            'read' => true,
+            'write' => true,
+            'edit' => true,
+            'delete' => true,
+        ];
+        $user->save();
+        return $user;
+    }
 } 

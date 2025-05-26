@@ -77,7 +77,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.active_users}</div>
-            <p className="text-xs text-muted-foreground">Active in last 7 days</p>
+            <p className="text-xs text-muted-foreground">Currently logged in users</p>
           </CardContent>
         </Card>
         
@@ -114,7 +114,12 @@ export default function AdminDashboard() {
             {recentUsers.map((user: any) => (
               <div key={user.id} className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">{user.name}</p>
+                  <p className="font-medium flex items-center gap-2">
+                    {user.name}
+                    {user.is_active && (
+                      <span className="inline-block w-2 h-2 rounded-full bg-green-500" title="Active"></span>
+                    )}
+                  </p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">

@@ -1,7 +1,6 @@
 import type React from "react"
 import "@/styles/globals.css"
 import { Inter } from "next/font/google"
-import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { ThemeProvider } from "@/components/theme-provider"
 
@@ -23,7 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
+            {/* <SiteHeader /> */}
             <main className="flex-1">{children}</main>
             <SiteFooter />
           </div>

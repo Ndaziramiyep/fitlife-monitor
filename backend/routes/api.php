@@ -50,4 +50,24 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
     Route::apiResource('workouts', WorkoutController::class);
+
+    // List all users (admin only)
+    Route::get('/users', function () {
+        // Optionally, check if the current user is admin
+        if (!auth()->user()->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return User::all();
+    });
+
+    // Update is_admin status (admin only)
+    Route::patch('/users/{id}', function (Request $request, $id) {
+        if (!auth()->user()->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $user = User::findOrFail($id);
+        $user->is_admin = $request->input('is_admin', false);
+        $user->save();
+        return $user;
+    });
 });

@@ -132,15 +132,24 @@ export default function AdminUsersPage() {
     setActionLoading(user.id);
     setActionError(null);
     try {
-      const newPermissions = !user.is_admin 
+      const newIsAdmin = !user.is_admin;
+      const newPermissions = newIsAdmin 
         ? PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: true }), {})
         : {};
         
       await api.patch(`/users/${user.id}`, { 
-        is_admin: !user.is_admin,
+        is_admin: newIsAdmin,
         permissions: newPermissions 
       });
-      fetchUsers();
+      
+      // Update local state immediately for better UX
+      setUsers(prevUsers => 
+        prevUsers.map(u => 
+          u.id === user.id 
+            ? { ...u, is_admin: newIsAdmin, permissions: newPermissions }
+            : u
+        )
+      );
     } catch (err: any) {
       setActionError(err?.response?.data?.message || "Failed to update admin status.");
     } finally {

@@ -196,13 +196,22 @@ export default function AdminUsersPage() {
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell className="border px-4 py-2">
-                      <Button size="sm" variant={user.is_admin ? "default" : "outline"} disabled>
-                        {user.is_admin ? "Yes" : "No"}
+                      <Button 
+                        size="sm" 
+                        variant={Object.values(user.permissions || {}).every(Boolean) ? "default" : "outline"} 
+                        disabled
+                      >
+                        {Object.values(user.permissions || {}).every(Boolean) ? "Yes" : "No"}
                       </Button>
                     </TableCell>
                     <TableCell className="border px-4 py-2">
-                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)} disabled={actionLoading === user.id}>
-                        {actionLoading === user.id ? "..." : user.is_admin ? "Revoke" : "Grant"}
+                      <Button 
+                        size="sm" 
+                        variant={Object.values(user.permissions || {}).every(Boolean) ? "destructive" : "default"} 
+                        onClick={() => handleAdminToggle(user)} 
+                        disabled={actionLoading === user.id}
+                      >
+                        {actionLoading === user.id ? "..." : Object.values(user.permissions || {}).every(Boolean) ? "Revoke" : "Grant"}
                       </Button>
                     </TableCell>
                     <TableCell>

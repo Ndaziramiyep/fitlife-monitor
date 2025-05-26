@@ -104,4 +104,22 @@ Route::middleware('auth:api')->group(function () {
         $user->delete();
         return response()->json(['message' => 'User deleted']);
     });
+
+    Route::middleware('auth:api')->get('/admin/stats', function () {
+        if (!auth()->user()->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $totalUsers = \App\Models\User::count();
+        $activeUsers = \App\Models\User::whereNotNull('last_login_at')->where('last_login_at', '>=', now()->subDay())->count();
+        $newSignups = \App\Models\User::where('created_at', '>=', now()->subDay())->count();
+        $admins = \App\Models\User::where('is_admin', true)->count();
+
+        return [
+            'total_users' => $totalUsers,
+            'active_users' => $activeUsers,
+            'new_signups' => $newSignups,
+            'admins' => $admins,
+        ];
+    });
 });

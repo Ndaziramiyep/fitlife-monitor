@@ -1,8 +1,35 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import api from "@/src/services/api";
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, Users, MessageSquare, ArrowUpRight, UserPlus, FileText, AlertCircle } from "lucide-react"
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Fetch the current user
+    api.get("/user")
+      .then(res => {
+        if (res.data && res.data.is_admin) {
+          setIsAdmin(true);
+        } else {
+          router.replace("/");
+        }
+      })
+      .catch(() => {
+        router.replace("/");
+      })
+      .finally(() => setLoading(false));
+  }, [router]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!isAdmin) return null;
+
   // Mock data for demonstration
   const stats = [
     {

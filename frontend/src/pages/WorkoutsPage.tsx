@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { WorkoutList } from '../components/WorkoutList';
 import { WorkoutForm } from '../components/WorkoutForm';
 
-export const WorkoutsPage: React.FC = () => {
+const WorkoutsPage = () => {
     const [showForm, setShowForm] = useState(false);
 
     return (
@@ -26,4 +26,6 @@ export const WorkoutsPage: React.FC = () => {
             <WorkoutList />
         </div>
     );
-}; 
+};
+
+export default WorkoutsPage; 

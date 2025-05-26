@@ -31,4 +31,3 @@ npm run dev
 
 This will start:
 - Frontend on http://localhost:3000
-

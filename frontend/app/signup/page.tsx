@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,8 +7,47 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { Mail, Lock, User, Github, ChromeIcon as Google } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { useState } from "react";
+import api, { setAuthToken } from "@/src/services/api";
 
 export default function SignupPage() {
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const name = `${form['first-name'].value} ${form['last-name'].value}`;
+    const email = form['email'].value;
+    const password = form['password'].value;
+    const confirmPassword = form['confirm-password'].value;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await api.post('/register', {
+        name,
+        email,
+        password
+      });
+      if ((res.status === 200 || res.status === 201) && res.data.token) {
+        setAuthToken(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        window.location.href = '/dashboard';
+      } else {
+        window.location.href = '/login';
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        alert('Signup failed: ' + JSON.stringify(error.response.data));
+      } else {
+        alert('Signup failed');
+      }
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container flex h-screen flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
@@ -17,19 +57,19 @@ export default function SignupPage() {
         </div>
         <Card>
           <CardContent className="pt-6">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="first-name">First name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="first-name" placeholder="John" className="pl-10" />
+                      <Input id="first-name" name="first-name" placeholder="John" className="pl-10" />
                     </div>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" placeholder="Doe" />
+                    <Input id="last-name" name="last-name" placeholder="Doe" />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -38,6 +78,7 @@ export default function SignupPage() {
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
+                      name="email"
                       placeholder="name@example.com"
                       type="email"
                       autoCapitalize="none"
@@ -51,9 +92,16 @@ export default function SignupPage() {
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type="password" placeholder="Create a password" className="pl-10" />
+                    <Input id="password" name="password" type="password" placeholder="Create a password" className="pl-10" />
                   </div>
                   <p className="text-xs text-muted-foreground">Password must be at least 8 characters long</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input id="confirm-password" name="confirm-password" type="password" placeholder="Confirm your password" className="pl-10" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="terms" />

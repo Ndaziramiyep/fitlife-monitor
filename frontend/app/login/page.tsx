@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,8 +7,34 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { Mail, Lock, Github, ChromeIcon as Google } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import api, { setAuthToken } from "@/src/services/api"
 
 export default function LoginPage() {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const email = form['email'].value;
+    const password = form['password'].value;
+
+    try {
+      const res = await api.post('/login', { email, password });
+      if (res.status === 200 && res.data.token) {
+        setAuthToken(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        window.location.href = '/dashboard';
+      } else {
+        alert('Login failed');
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        alert('Login failed: ' + JSON.stringify(error.response.data));
+      } else {
+        alert('Login failed');
+      }
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container flex h-screen flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -17,7 +44,7 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardContent className="pt-6">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
@@ -25,6 +52,7 @@ export default function LoginPage() {
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
+                      name="email"
                       placeholder="name@example.com"
                       type="email"
                       autoCapitalize="none"
@@ -43,7 +71,7 @@ export default function LoginPage() {
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" type="password" placeholder="••••••••" className="pl-10" />
+                    <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10" />
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">

@@ -122,4 +122,6 @@ Route::middleware('auth:api')->group(function () {
             'admins' => $admins,
         ];
     });
+
+    Route::get('/admin/dashboard/stats', [App\Http\Controllers\Admin\AdminController::class, 'getDashboardStats']);
 });

@@ -21,7 +21,11 @@ export default function LoginPage() {
       if (res.status === 200 && res.data.token) {
         setAuthToken(res.data.token);
         localStorage.setItem('token', res.data.token);
-        window.location.href = '/dashboard';
+        if (res.data.user && res.data.user.is_admin) {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         alert('Login failed');
       }

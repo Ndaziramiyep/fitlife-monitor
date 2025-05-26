@@ -18,41 +18,118 @@ import { Badge } from "@/components/ui/badge"
 import { UserPlus, Search, MoreHorizontal, Filter } from "lucide-react"
 import api from "@/src/services/api"
 
+const PERMISSIONS = [
+  { key: "read", label: "Read" },
+  { key: "write", label: "Write" },
+  { key: "edit", label: "Edit" },
+  { key: "delete", label: "Delete" },
+];
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAdd, setShowAdd] = useState(false)
+  const [showEdit, setShowEdit] = useState<number | null>(null)
+  const [showPermEdit, setShowPermEdit] = useState<number | null>(null)
+  const [form, setForm] = useState({ name: "", email: "", password: "", permissions: {} as Record<string, boolean> })
+  const [permEditForm, setPermEditForm] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = () => {
+    setLoading(true)
     api.get("/users")
       .then(res => setUsers(res.data))
       .catch(() => setError("Failed to load users."))
       .finally(() => setLoading(false))
-  }, [])
+  }
 
-  const toggleAdmin = async (userId: number, isAdmin: boolean) => {
+  const handleCheckbox = (perm: string) => {
+    setForm(f => ({ ...f, permissions: { ...f.permissions, [perm]: !f.permissions[perm] } }))
+  }
+
+  const handleAdd = async (e: any) => {
+    e.preventDefault()
     try {
-      await api.patch(`/users/${userId}`, { is_admin: !isAdmin })
-      setUsers(users => users.map(u => u.id === userId ? { ...u, is_admin: !isAdmin } : u))
+      await api.post("/users", { ...form, permissions: form.permissions })
+      setShowAdd(false)
+      setForm({ name: "", email: "", password: "", permissions: {} })
+      fetchUsers()
     } catch {
-      alert("Failed to update admin status.")
+      alert("Failed to add user.")
     }
   }
+
+  const handleEdit = async (e: any) => {
+    e.preventDefault()
+    try {
+      await api.patch(`/users/${showEdit}`, { ...form, permissions: form.permissions })
+      setShowEdit(null)
+      setForm({ name: "", email: "", password: "", permissions: {} })
+      fetchUsers()
+    } catch {
+      alert("Failed to update user.")
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this user?")) return
+    try {
+      await api.delete(`/users/${id}`)
+      fetchUsers()
+    } catch {
+      alert("Failed to delete user.")
+    }
+  }
+
+  const openEdit = (user: any) => {
+    setShowEdit(user.id)
+    setForm({
+      name: user.name,
+      email: user.email,
+      password: "",
+      permissions: PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: user.permissions ? !!user.permissions[p.key] : false }), {}),
+    })
+  }
+
+  const openPermEdit = (user: any) => {
+    setShowPermEdit(user.id)
+    setPermEditForm(PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: user.permissions ? !!user.permissions[p.key] : false }), {}))
+  }
+
+  const handlePermCheckbox = (perm: string) => {
+    setPermEditForm(f => ({ ...f, [perm]: !f[perm] }))
+  }
+
+  const savePermEdit = async (userId: number) => {
+    try {
+      await api.patch(`/users/${userId}`, { permissions: permEditForm })
+      setShowPermEdit(null)
+      fetchUsers()
+    } catch {
+      alert("Failed to update permissions.")
+    }
+  }
+
+  const handleAdminToggle = async (user: any) => {
+    try {
+      await api.patch(`/users/${user.id}`, { is_admin: !user.is_admin });
+      fetchUsers();
+    } catch {
+      alert("Failed to update admin status.");
+    }
+  };
 
   if (loading) return <div>Loading users...</div>
   if (error) return <div>{error}</div>
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">User Management</h1>
-        <Button asChild>
-          <Link href="/admin/users/create">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add User
-          </Link>
-        </Button>
-      </div>
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-4">User Management</h1>
+      <Button onClick={() => setShowAdd(true)} className="mb-4">Add User</Button>
 
       <Card>
         <CardHeader>
@@ -75,7 +152,7 @@ export default function AdminUsersPage() {
             </Button>
           </div>
 
-          <div className="rounded-md border">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -83,6 +160,7 @@ export default function AdminUsersPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Admin</TableHead>
+                  <TableHead>Permissions</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -93,16 +171,33 @@ export default function AdminUsersPage() {
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={user.is_admin ? "default" : "outline"}
-                      >
-                        {user.is_admin ? "Yes" : "No"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button onClick={() => toggleAdmin(user.id, user.is_admin)}>
+                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)}>
                         {user.is_admin ? "Revoke Admin" : "Make Admin"}
                       </Button>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Button size="sm" variant="outline" onClick={() => openPermEdit(user)}>
+                          {showPermEdit === user.id ? "Close" : "Grant/Revoke"}
+                        </Button>
+                      </div>
+                      {showPermEdit === user.id && (
+                        <div className="mt-2 p-2 border rounded bg-white shadow max-w-xs">
+                          <div className="flex flex-wrap gap-4 mb-2">
+                            {PERMISSIONS.map(p => (
+                              <label key={p.key} className="flex items-center gap-1">
+                                <input type="checkbox" checked={!!permEditForm[p.key]} onChange={() => handlePermCheckbox(p.key)} /> {p.label}
+                              </label>
+                            ))}
+                          </div>
+                          <Button size="sm" onClick={() => savePermEdit(user.id)}>Save</Button>
+                          <Button size="sm" variant="outline" onClick={() => setShowPermEdit(null)} className="ml-2">Cancel</Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" onClick={() => openEdit(user)} className="mr-2">Edit</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>Delete</Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -111,6 +206,50 @@ export default function AdminUsersPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add User Modal */}
+      {showAdd && (
+        <form onSubmit={handleAdd} className="mb-4 p-4 border rounded bg-white">
+          <h2 className="font-bold mb-2">Add User</h2>
+          <Input placeholder="Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="mb-2" />
+          <Input placeholder="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required className="mb-2" />
+          <Input placeholder="Password" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required className="mb-2" />
+          <div className="mb-2">
+            <span className="font-semibold">Permissions:</span>
+            <div className="flex flex-wrap gap-4 mt-2">
+              {PERMISSIONS.map(p => (
+                <label key={p.key} className="flex items-center gap-1">
+                  <input type="checkbox" checked={!!form.permissions[p.key]} onChange={() => handleCheckbox(p.key)} /> {p.label}
+                </label>
+              ))}
+            </div>
+          </div>
+          <Button type="submit">Add</Button>
+          <Button type="button" variant="outline" onClick={() => setShowAdd(false)} className="ml-2">Cancel</Button>
+        </form>
+      )}
+
+      {/* Edit User Modal */}
+      {showEdit && (
+        <form onSubmit={handleEdit} className="mb-4 p-4 border rounded bg-white">
+          <h2 className="font-bold mb-2">Edit User</h2>
+          <Input placeholder="Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="mb-2" />
+          <Input placeholder="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required className="mb-2" />
+          <Input placeholder="Password (leave blank to keep)" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="mb-2" />
+          <div className="mb-2">
+            <span className="font-semibold">Permissions:</span>
+            <div className="flex flex-wrap gap-4 mt-2">
+              {PERMISSIONS.map(p => (
+                <label key={p.key} className="flex items-center gap-1">
+                  <input type="checkbox" checked={!!form.permissions[p.key]} onChange={() => handleCheckbox(p.key)} /> {p.label}
+                </label>
+              ))}
+            </div>
+          </div>
+          <Button type="submit">Save</Button>
+          <Button type="button" variant="outline" onClick={() => setShowEdit(null)} className="ml-2">Cancel</Button>
+        </form>
+      )}
     </div>
   )
 }

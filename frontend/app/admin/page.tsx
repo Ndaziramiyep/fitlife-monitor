@@ -10,9 +10,9 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    // Fetch the current user
     api.get("/user")
       .then(res => {
         if (res.data && res.data.is_admin) {
@@ -21,17 +21,23 @@ export default function AdminDashboard() {
           router.replace("/");
         }
       })
-      .catch(() => {
-        router.replace("/");
+      .catch((err) => {
+        if (err.response && err.response.status === 401) {
+          router.replace("/login");
+        } else {
+          router.replace("/");
+        }
       })
       .finally(() => setLoading(false));
+
+    api.get("/admin/stats").then(res => setStats(res.data));
   }, [router]);
 
   if (loading) return <div>Loading...</div>;
   if (!isAdmin) return null;
 
   // Mock data for demonstration
-  const stats = [
+  const mockStats = [
     {
       title: "Total Users",
       value: "4,328",
@@ -108,7 +114,7 @@ export default function AdminDashboard() {
 
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
+        {mockStats.map((stat, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -260,6 +266,48 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Real Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Real Stats</CardTitle>
+          <CardDescription>Current real-time statistics</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!stats ? (
+            <div>Loading stats...</div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Total Users</span>
+                    <span className="text-sm text-muted-foreground">{stats.total_users}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Active Users (last 24h)</span>
+                    <span className="text-sm text-muted-foreground">{stats.active_users}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">New Signups (last 24h)</span>
+                    <span className="text-sm text-muted-foreground">{stats.new_signups}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Admins</span>
+                    <span className="text-sm text-muted-foreground">{stats.admins}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

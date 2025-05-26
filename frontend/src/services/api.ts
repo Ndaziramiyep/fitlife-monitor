@@ -7,14 +7,11 @@ const api = axios.create({
     },
 });
 
-// Helper to set the Bearer token
-export const setAuthToken = (token: string | null) => {
-    if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-        delete api.defaults.headers.common['Authorization'];
-    }
-};
+// Set token from localStorage on app load
+const token = typeof window !== "undefined" ? localStorage.getItem('token') : null;
+if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 export interface Workout {
     id: number;
@@ -36,6 +33,14 @@ export const workoutApi = {
     update: (id: number, data: Partial<Workout>) => 
         api.put<Workout>(`/workouts/${id}`, data).then(res => res.data),
     delete: (id: number) => api.delete(`/workouts/${id}`),
+};
+
+export const setAuthToken = (token: string | null) => {
+    if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+        delete api.defaults.headers.common['Authorization'];
+    }
 };
 
 export default api; 

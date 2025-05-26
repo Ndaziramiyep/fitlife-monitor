@@ -8,8 +8,11 @@ import Link from "next/link"
 import { Mail, Lock, Github, ChromeIcon as Google } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import api, { setAuthToken } from "@/src/services/api"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const router = useRouter()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -22,9 +25,9 @@ export default function LoginPage() {
         setAuthToken(res.data.token);
         localStorage.setItem('token', res.data.token);
         if (res.data.user && res.data.user.is_admin) {
-          window.location.href = '/admin';
+          router.push('/admin');
         } else {
-          window.location.href = '/dashboard';
+          router.push('/dashboard');
         }
       } else {
         alert('Login failed');

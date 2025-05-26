@@ -35,6 +35,8 @@ const PERMISSIONS = [
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
@@ -49,10 +51,22 @@ export default function AdminUsersPage() {
     fetchUsers()
   }, [])
 
+  useEffect(() => {
+    // Filter users based on search query
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setFilteredUsers(filtered)
+  }, [searchQuery, users])
+
   const fetchUsers = () => {
     setLoading(true)
     api.get("/users")
-      .then(res => setUsers(res.data))
+      .then(res => {
+        setUsers(res.data)
+        setFilteredUsers(res.data)
+      })
       .catch(() => setError("Failed to load users."))
       .finally(() => setLoading(false))
   }
@@ -186,6 +200,8 @@ export default function AdminUsersPage() {
                 type="search"
                 placeholder="Search users..."
                 className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Button variant="outline" size="icon">
@@ -207,7 +223,7 @@ export default function AdminUsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">{user.id}</TableCell>
                     <TableCell>{user.name}</TableCell>

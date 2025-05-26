@@ -34,6 +34,8 @@ export default function AdminUsersPage() {
   const [showPermEdit, setShowPermEdit] = useState<number | null>(null)
   const [form, setForm] = useState({ name: "", email: "", password: "", permissions: {} as Record<string, boolean> })
   const [permEditForm, setPermEditForm] = useState<Record<string, boolean>>({})
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers()
@@ -52,38 +54,50 @@ export default function AdminUsersPage() {
   }
 
   const handleAdd = async (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
+    setActionLoading(-1);
+    setActionError(null);
     try {
-      await api.post("/users", { ...form, permissions: form.permissions })
-      setShowAdd(false)
-      setForm({ name: "", email: "", password: "", permissions: {} })
-      fetchUsers()
-    } catch {
-      alert("Failed to add user.")
+      await api.post("/users", { ...form, permissions: form.permissions });
+      setShowAdd(false);
+      setForm({ name: "", email: "", password: "", permissions: {} });
+      fetchUsers();
+    } catch (err: any) {
+      setActionError(err?.response?.data?.message || "Failed to add user.");
+    } finally {
+      setActionLoading(null);
     }
-  }
+  };
 
   const handleEdit = async (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
+    setActionLoading(showEdit!);
+    setActionError(null);
     try {
-      await api.patch(`/users/${showEdit}`, { ...form, permissions: form.permissions })
-      setShowEdit(null)
-      setForm({ name: "", email: "", password: "", permissions: {} })
-      fetchUsers()
-    } catch {
-      alert("Failed to update user.")
+      await api.patch(`/users/${showEdit}`, { ...form, permissions: form.permissions });
+      setShowEdit(null);
+      setForm({ name: "", email: "", password: "", permissions: {} });
+      fetchUsers();
+    } catch (err: any) {
+      setActionError(err?.response?.data?.message || "Failed to update user.");
+    } finally {
+      setActionLoading(null);
     }
-  }
+  };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this user?")) return
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    setActionLoading(id);
+    setActionError(null);
     try {
-      await api.delete(`/users/${id}`)
-      fetchUsers()
-    } catch {
-      alert("Failed to delete user.")
+      await api.delete(`/users/${id}`);
+      fetchUsers();
+    } catch (err: any) {
+      setActionError(err?.response?.data?.message || "Failed to delete user.");
+    } finally {
+      setActionLoading(null);
     }
-  }
+  };
 
   const openEdit = (user: any) => {
     setShowEdit(user.id)
@@ -115,11 +129,15 @@ export default function AdminUsersPage() {
   }
 
   const handleAdminToggle = async (user: any) => {
+    setActionLoading(user.id);
+    setActionError(null);
     try {
       await api.patch(`/users/${user.id}`, { is_admin: !user.is_admin });
       fetchUsers();
-    } catch {
-      alert("Failed to update admin status.");
+    } catch (err: any) {
+      setActionError(err?.response?.data?.message || "Failed to update admin status.");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -176,14 +194,14 @@ export default function AdminUsersPage() {
                       </Button>
                     </TableCell>
                     <TableCell className="border px-4 py-2">
-                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)}>
-                        {user.is_admin ? "Revoke" : "Grant"}
+                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)} disabled={actionLoading === user.id}>
+                        {actionLoading === user.id ? "..." : user.is_admin ? "Revoke" : "Grant"}
                       </Button>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => openEdit(user)} className="mr-2">Edit</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>Delete</Button>
+                        <Button size="sm" onClick={() => openEdit(user)} className="mr-2" disabled={actionLoading === user.id}>Edit</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)} disabled={actionLoading === user.id}>Delete</Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -237,6 +255,9 @@ export default function AdminUsersPage() {
           <Button type="button" variant="outline" onClick={() => setShowEdit(null)} className="ml-2">Cancel</Button>
         </form>
       )}
+
+      {/* Show error feedback */}
+      {actionError && <div className="text-red-600 mt-2">{actionError}</div>}
     </div>
   )
 }

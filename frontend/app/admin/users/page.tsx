@@ -159,8 +159,8 @@ export default function AdminUsersPage() {
                   <TableHead>ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead className="border px-4 py-2">Permissions</TableHead>
                   <TableHead className="border px-4 py-2">Admin</TableHead>
+                  <TableHead className="border px-4 py-2">Permissions</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -171,18 +171,20 @@ export default function AdminUsersPage() {
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell className="border px-4 py-2">
-                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)}>
-                        {user.is_admin ? "Revoke Admin" : "Make Admin"}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="border px-4 py-2">
                       <Button size="sm" variant={user.is_admin ? "default" : "outline"} disabled>
                         {user.is_admin ? "Yes" : "No"}
                       </Button>
                     </TableCell>
+                    <TableCell className="border px-4 py-2">
+                      <Button size="sm" variant={user.is_admin ? "destructive" : "default"} onClick={() => handleAdminToggle(user)}>
+                        {user.is_admin ? "Revoke" : "Grant"}
+                      </Button>
+                    </TableCell>
                     <TableCell>
-                      <Button size="sm" onClick={() => openEdit(user)} className="mr-2">Edit</Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>Delete</Button>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => openEdit(user)} className="mr-2">Edit</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)}>Delete</Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

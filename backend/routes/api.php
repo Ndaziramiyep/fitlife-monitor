@@ -53,21 +53,55 @@ Route::middleware('auth:api')->group(function () {
 
     // List all users (admin only)
     Route::get('/users', function () {
-        // Optionally, check if the current user is admin
         if (!auth()->user()->is_admin) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         return User::all();
     });
 
-    // Update is_admin status (admin only)
+    // Create a new user (admin only)
+    Route::post('/users', function (Request $request) {
+        if (!auth()->user()->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'permissions' => 'nullable|array',
+        ]);
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+        return $user;
+    });
+
+    // Update user (admin only)
     Route::patch('/users/{id}', function (Request $request, $id) {
         if (!auth()->user()->is_admin) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $user = User::findOrFail($id);
-        $user->is_admin = $request->input('is_admin', false);
-        $user->save();
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
+            'password' => 'sometimes|string|min:8',
+            'is_admin' => 'sometimes|boolean',
+            'permissions' => 'nullable|array',
+        ]);
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+        $user->update($data);
         return $user;
+    });
+
+    // Delete user (admin only)
+    Route::delete('/users/{id}', function ($id) {
+        if (!auth()->user()->is_admin) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json(['message' => 'User deleted']);
     });
 });

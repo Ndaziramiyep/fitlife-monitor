@@ -1,0 +1,10 @@
+{
+  "name": "laravel-backend-api",
+  "version": "1.0.0",
+  "description": "Laravel backend for API only (no frontend build)",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": ["laravel", "api"],
+  "author": "",
+  "license": "MIT"
+}

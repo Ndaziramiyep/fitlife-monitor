@@ -1,0 +1,14 @@
+{
+  "name": "fitlife-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && php artisan serve",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && composer install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

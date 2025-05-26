@@ -23,9 +23,9 @@ export function MainNav() {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link href="/" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Home</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <Link href="/">Home</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Features</NavigationMenuTrigger>
@@ -95,14 +95,14 @@ export function MainNav() {
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/about" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>About</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <Link href="/about">About</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/contact" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>Contact</NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <Link href="/contact">Contact</Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>

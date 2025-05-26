@@ -26,7 +26,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="pr-0">
         <div className="px-7">
-          <Link href="/" onClick={() => setOpen(false)} legacyBehavior>
+          <Link href="/" onClick={() => setOpen(false)}>
             <div className="flex items-center">
               <span className="font-bold">FitLife Monitor</span>
             </div>
@@ -129,7 +129,7 @@ function MobileLink({ href, setOpen, children, ...props }: MobileLinkProps) {
         isActive && "text-foreground font-medium",
       )}
       {...props}
-      legacyBehavior>
+    >
       {children}
     </Link>
   );

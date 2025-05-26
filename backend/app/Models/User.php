@@ -45,16 +45,14 @@ class User extends Authenticatable implements OAuthenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'date_of_birth' => 'date',
-            'height' => 'decimal:2',
-            'weight' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'date_of_birth' => 'date',
+        'height' => 'decimal:2',
+        'weight' => 'decimal:2',
+        'permissions' => 'array',
+    ];
 
     protected $visible = [
         'id', 'name', 'email', 'is_admin',

@@ -17,6 +17,14 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { UserPlus, Search, MoreHorizontal, Filter } from "lucide-react"
 import api from "@/src/services/api"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 
 const PERMISSIONS = [
   { key: "read", label: "Read" },
@@ -261,24 +269,78 @@ export default function AdminUsersPage() {
 
       {/* Edit User Modal */}
       {showEdit && (
-        <form onSubmit={handleEdit} className="mb-4 p-4 border rounded bg-white">
-          <h2 className="font-bold mb-2">Edit User</h2>
-          <Input placeholder="Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="mb-2" />
-          <Input placeholder="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required className="mb-2" />
-          <Input placeholder="Password (leave blank to keep)" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="mb-2" />
-          <div className="mb-2">
-            <span className="font-semibold">Permissions:</span>
-            <div className="flex flex-wrap gap-4 mt-2">
-              {PERMISSIONS.map(p => (
-                <label key={p.key} className="flex items-center gap-1">
-                  <input type="checkbox" checked={!!form.permissions[p.key]} onChange={() => handleCheckbox(p.key)} /> {p.label}
-                </label>
-              ))}
-            </div>
-          </div>
-          <Button type="submit">Save</Button>
-          <Button type="button" variant="outline" onClick={() => setShowEdit(null)} className="ml-2">Cancel</Button>
-        </form>
+        <Dialog open={!!showEdit} onOpenChange={() => setShowEdit(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>
+                Make changes to user details and permissions.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEdit}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <label htmlFor="name">Name</label>
+                  <Input
+                    id="name"
+                    placeholder="Name"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="email">Email</label>
+                  <Input
+                    id="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="password">Password</label>
+                  <Input
+                    id="password"
+                    placeholder="Password (leave blank to keep)"
+                    type="password"
+                    value={form.password}
+                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <span className="font-semibold">Permissions:</span>
+                  <div className="flex flex-wrap gap-4">
+                    {PERMISSIONS.map(p => (
+                      <label key={p.key} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={!!form.permissions[p.key]}
+                          onChange={() => handleCheckbox(p.key)}
+                        />
+                        {p.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={actionLoading === showEdit}>
+                  {actionLoading === showEdit ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowEdit(null)}
+                  disabled={actionLoading === showEdit}
+                >
+                  Cancel
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Show error feedback */}

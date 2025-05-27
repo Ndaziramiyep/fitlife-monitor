@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Passport\Token;
+use App\Models\Activity;
 
 class AdminController extends Controller
 {
@@ -35,6 +36,20 @@ class AdminController extends Controller
                 ];
             });
 
+        $recentActivities = Activity::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'user_name' => $activity->user ? $activity->user->name : null,
+                    'type' => $activity->type,
+                    'description' => $activity->description,
+                    'created_at' => $activity->created_at,
+                ];
+            });
+
         return response()->json([
             'stats' => [
                 'total_users' => $totalUsers,
@@ -42,7 +57,8 @@ class AdminController extends Controller
                 'new_users' => $newUsers,
                 'admin_users' => $adminUsers,
             ],
-            'recent_users' => $recentUsers
+            'recent_users' => $recentUsers,
+            'recent_activities' => $recentActivities,
         ]);
     }
 

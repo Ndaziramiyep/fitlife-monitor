@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Models\Activity;
 
 Route::post('/register', function (Request $request) {
     try {
@@ -39,6 +40,11 @@ Route::post('/login', function (Request $request) {
             return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
         }
         $token = $user->createToken('api-token')->accessToken;
+        Activity::create([
+            'user_id' => $user->id,
+            'type' => 'login',
+            'description' => 'User logged in',
+        ]);
         return response()->json(['token' => $token, 'user' => $user]);
     } catch (\Exception $e) {
         return response()->json(['message' => $e->getMessage()], 400);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Workout;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\Activity;
 
 class WorkoutController extends Controller
 {
@@ -31,6 +32,12 @@ class WorkoutController extends Controller
 
         $workout = $request->user()->workouts()->create($validated);
 
+        Activity::create([
+            'user_id' => auth()->id(),
+            'type' => 'workout_created',
+            'description' => 'Created a new workout: ' . $workout->type,
+        ]);
+
         return response()->json($workout, 201);
     }
 
@@ -55,13 +62,26 @@ class WorkoutController extends Controller
 
         $workout->update($validated);
 
+        Activity::create([
+            'user_id' => auth()->id(),
+            'type' => 'workout_updated',
+            'description' => 'Updated workout: ' . ($workout->type ?? ''),
+        ]);
+
         return response()->json($workout);
     }
 
     public function destroy(Workout $workout): JsonResponse
     {
         $this->authorize('delete', $workout);
+        $workoutType = $workout->type;
         $workout->delete();
+
+        Activity::create([
+            'user_id' => auth()->id(),
+            'type' => 'workout_deleted',
+            'description' => 'Deleted workout: ' . ($workoutType ?? ''),
+        ]);
 
         return response()->json(null, 204);
     }

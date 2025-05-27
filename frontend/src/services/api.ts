@@ -43,4 +43,6 @@ export const setAuthToken = (token: string | null) => {
     }
 };
 
+export const getCurrentUser = () => api.get('/user').then(res => res.data);
+
 export default api; 

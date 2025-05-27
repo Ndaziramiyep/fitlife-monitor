@@ -1,12 +1,50 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Activity, Settings, Award, Heart, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/src/services/api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getCurrentUser().then(setUser).finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="container py-8">
+      {/* Personal Profile Widget */}
+      <div className="mb-6">
+        <Card className="flex flex-row items-center gap-6 p-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src="/placeholder.svg?height=80&width=80" alt="Profile" />
+            <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
+          </Avatar>
+          <div>
+            {loading ? (
+              <div>Loading profile...</div>
+            ) : user ? (
+              <>
+                <h2 className="text-xl font-bold">{user.name}</h2>
+                <p className="text-muted-foreground">{user.email}</p>
+                <div className="flex gap-4 mt-2">
+                  <span className="text-sm">Height: {user.height ?? "-"} cm</span>
+                  <span className="text-sm">Weight: {user.weight ?? "-"} kg</span>
+                  <span className="text-sm">Goal: {user.fitness_goal ?? "-"}</span>
+                </div>
+              </>
+            ) : (
+              <div>Failed to load profile.</div>
+            )}
+          </div>
+        </Card>
+      </div>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Dashboard</h1>

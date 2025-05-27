@@ -3,6 +3,8 @@ import "@/styles/globals.css"
 import { Inter } from "next/font/google"
 import { SiteFooter } from "@/components/site-footer"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SiteHeader } from "@/components/site-header"
+import { usePathname } from "next/navigation"
 
 const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
@@ -17,12 +19,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const hideHeader = pathname.startsWith('/admin') || pathname.startsWith('/dashboard');
   return (
     <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div className="relative flex min-h-screen flex-col">
-            {/* <SiteHeader /> */}
+            {!hideHeader && <SiteHeader />}
             <main className="flex-1">{children}</main>
             <SiteFooter />
           </div>

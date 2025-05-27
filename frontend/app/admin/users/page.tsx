@@ -155,20 +155,12 @@ export default function AdminUsersPage() {
     setActionError(null);
     try {
       const newIsAdmin = !user.is_admin;
-      const newPermissions = newIsAdmin 
-        ? PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: true }), {})
-        : {};
-        
-      await api.patch(`/users/${user.id}`, { 
-        is_admin: newIsAdmin,
-        permissions: newPermissions 
-      });
-      
+      await api.patch(`/users/${user.id}`, { is_admin: newIsAdmin });
       // Update local state immediately for better UX
       setUsers(prevUsers => 
         prevUsers.map(u => 
           u.id === user.id 
-            ? { ...u, is_admin: newIsAdmin, permissions: newPermissions }
+            ? { ...u, is_admin: newIsAdmin }
             : u
         )
       );

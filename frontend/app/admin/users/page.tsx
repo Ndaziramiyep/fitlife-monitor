@@ -156,14 +156,8 @@ export default function AdminUsersPage() {
     try {
       const newIsAdmin = !user.is_admin;
       await api.patch(`/users/${user.id}`, { is_admin: newIsAdmin });
-      // Update local state immediately for better UX
-      setUsers(prevUsers => 
-        prevUsers.map(u => 
-          u.id === user.id 
-            ? { ...u, is_admin: newIsAdmin }
-            : u
-        )
-      );
+      // Refresh the users list to ensure the database state is reflected
+      fetchUsers();
     } catch (err: any) {
       setActionError(err?.response?.data?.message || "Failed to update admin status.");
     } finally {

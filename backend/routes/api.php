@@ -91,6 +91,12 @@ Route::middleware('auth:api')->group(function () {
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
+        // Explicitly set and save is_admin if provided
+        if (array_key_exists('is_admin', $data)) {
+            $user->is_admin = $data['is_admin'];
+            unset($data['is_admin']);
+            $user->save();
+        }
         $user->update($data);
         return $user;
     });

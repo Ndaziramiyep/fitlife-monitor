@@ -96,7 +96,12 @@ export default function AdminUsersPage() {
     setActionLoading(showEdit!);
     setActionError(null);
     try {
-      await api.patch(`/users/${showEdit}`, { ...form, permissions: form.permissions });
+      const updateData: any = { ...form, permissions: form.permissions };
+      // Only include password if it's not empty
+      if (updateData.password === '') {
+        delete updateData.password;
+      }
+      await api.patch(`/users/${showEdit}`, updateData);
       setShowEdit(null);
       setForm({ name: "", email: "", password: "", permissions: {} });
       fetchUsers();

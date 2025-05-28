@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Activity;
+use Illuminate\Support\Str;
 
 Route::post('/register', function (Request $request) {
     try {
@@ -126,13 +127,40 @@ Route::middleware('auth:api')->group(function () {
             unset($data['is_admin']);
             $user->save();
         }
+        $originalUser = $user->getOriginal(); // Get original data before update
         $user->update($data);
+        $changes = $user->getChanges(); // Get changes after update
+
+        // Prepare description of changes
+        $changedFields = [];
+        foreach ($changes as $key => $newValue) {
+            if ($key !== 'updated_at') { // Exclude updated_at timestamp
+                $oldValue = isset($originalUser[$key]) ? $originalUser[$key] : 'N/A';
+                // Mask password in logs
+                if ($key === 'password') {
+                    $changedFields[] = "password (changed)";
+                } else {
+                     // Limit length of old and new values for brevity in logs
+                    $oldValue = (is_array($oldValue) || is_object($oldValue)) ? json_encode($oldValue) : (string)$oldValue;
+                    $newValue = (is_array($newValue) || is_object($newValue)) ? json_encode($newValue) : (string)$newValue;
+                    $oldValue = Str::limit($oldValue, 50);
+                    $newValue = Str::limit($newValue, 50);
+
+                    $changedFields[] = "{$key}: '{$oldValue}' -> '{$newValue}'";
+                }
+            }
+        }
+
+        $description = 'Admin updated user: ' . $user->email;
+        if (!empty($changedFields)) {
+            $description .= ' (Changes: ' . implode(', ', $changedFields) . ')';
+        }
 
         // Log admin user update
         \App\Models\Activity::create([
             'user_id' => auth()->id(), // Assuming admin is logged in
             'type' => 'admin_updated_user',
-            'description' => 'Admin updated user: ' . $user->email,
+            'description' => $description,
         ]);
 
         return $user;
@@ -144,13 +172,14 @@ Route::middleware('auth:api')->group(function () {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $user = User::findOrFail($id);
+        $email = $user->email; // Get email before deletion
         $user->delete();
 
         // Log admin user deletion
         \App\Models\Activity::create([
             'user_id' => auth()->id(), // Assuming admin is logged in
             'type' => 'admin_deleted_user',
-            'description' => 'Admin deleted user with ID: ' . $id,
+            'description' => 'Admin deleted user: ' . $email . ' (ID: ' . $id . ')',
         ]);
 
         return response()->json(['message' => 'User deleted']);
@@ -185,6 +214,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Route to delete an activity (Admin only)
     Route::delete('/activities/{id}', [App\Http\Controllers\Admin\AdminController::class, 'deleteActivity']);
+
+    // Content management routes
+    Route::apiResource('contents', Api\ContentController::class);
 });
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {

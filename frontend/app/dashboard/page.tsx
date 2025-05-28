@@ -402,6 +402,24 @@ export default function DashboardPage() {
               </Button>
             </CardContent>
           </Card>
+          {/* New Card for Content Management */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Manage My Content</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-2">
+                Create, view, edit, and delete your personal content.
+              </p>
+              <Button size="sm" className="w-full" asChild>
+                <Link href="/content">
+                  <div className="flex items-center">
+                    Manage Content <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

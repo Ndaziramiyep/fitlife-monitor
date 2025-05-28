@@ -80,7 +80,7 @@ export default function AboutPage() {
               {[
                 {
                   name: "Patrick Ndaziramiye",
-                  role: "Chief Medical Officer",
+                  role: "CEO",
                   bio: "Board-certified physician specializing in preventive medicine and digital health innovation.",
                 },
                 {
@@ -111,7 +111,7 @@ export default function AboutPage() {
               ].map((member, i) => (
                 <div key={i} className="flex flex-col items-center text-center">
                   <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={`/placeholder.svg?height=96&width=96&text=${member.name.charAt(0)}`} />
+                    <AvatarImage src={member.name === "Patrick Ndaziramiye" ? "/Patrick.jpg" : member.name === "Jean D'Amour Kubwimana" ? "/Damour.jpg" : `/placeholder.svg?height=96&width=96&text=${member.name.charAt(0)}`} />
                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <h3 className="font-medium">{member.name}</h3>

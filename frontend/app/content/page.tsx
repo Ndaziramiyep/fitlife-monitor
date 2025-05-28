@@ -18,6 +18,9 @@ interface Content {
   status: string;
   created_at: string;
   updated_at: string;
+  user?: {
+    name: string;
+  };
 }
 
 export default function ContentManagementPage() {
@@ -141,6 +144,9 @@ export default function ContentManagementPage() {
                 <CardDescription className="whitespace-pre-wrap">{content.body}</CardDescription>
                 <p className="text-sm text-muted-foreground mt-2">Status: {content.status}</p>
                  <p className="text-sm text-muted-foreground">Created: {new Date(content.created_at).toLocaleString()}</p>
+                {content.user && (
+                  <p className="text-sm text-muted-foreground">Author: {content.user.name}</p>
+                )}
               </CardContent>
             </Card>
           ))

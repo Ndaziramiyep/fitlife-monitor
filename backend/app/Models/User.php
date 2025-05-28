@@ -56,7 +56,7 @@ class User extends Authenticatable implements OAuthenticatable
     ];
 
     protected $visible = [
-        'id', 'name', 'email', 'is_admin',
+        'id', 'name', 'email', 'is_admin', 'height', 'weight',
     ];
 
     public function workouts()

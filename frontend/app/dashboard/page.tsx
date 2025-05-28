@@ -19,6 +19,16 @@ export default function DashboardPage() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+    } else {
+      // Fetch user only if token exists
+      getCurrentUser().then(setUser).finally(() => setLoading(false));
+    }
+  }, [router]); // Add router to dependencies array
+
   const handleLogout = async () => {
     try {
       await api.post('/logout'); // Call the backend logout endpoint
@@ -30,10 +40,6 @@ export default function DashboardPage() {
     setAuthToken(null);
     router.push('/login');
   };
-
-  useEffect(() => {
-    getCurrentUser().then(setUser).finally(() => setLoading(false));
-  }, []);
 
   return (
     <div className="container py-8">
@@ -52,8 +58,8 @@ export default function DashboardPage() {
                 <h2 className="text-xl font-bold">{user.name}</h2>
                 <p className="text-muted-foreground">{user.email}</p>
                 <div className="flex gap-4 mt-2">
-                  <span className="text-sm">Height: {user.height ?? "-"} cm</span>
-                  <span className="text-sm">Weight: {user.weight ?? "-"} kg</span>
+                  <span className="text-sm">Height: {user?.height ?? "-"} cm</span>
+                  <span className="text-sm">Weight: {user?.weight ?? "-"} kg</span>
                   <span className="text-sm">Goal: {user.fitness_goal ?? "-"}</span>
                 </div>
               </>
@@ -169,10 +175,7 @@ export default function DashboardPage() {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">68 kg</div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500">↓ 0.5kg</span> from last week
-                  </p>
+                  <div className="text-2xl font-bold">{user?.weight ?? "-"} kg</div>
                 </CardContent>
               </Card>
               <Card>
@@ -181,7 +184,7 @@ export default function DashboardPage() {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">170 cm</div>
+                  <div className="text-2xl font-bold">{user?.height ?? "-"} cm</div>
                 </CardContent>
               </Card>
               <Card>

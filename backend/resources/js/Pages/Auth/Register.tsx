@@ -39,6 +39,7 @@ export default function Register() {
                         isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
                         required
+                        placeholder="Patrick Ndaziramiye"
                     />
 
                     <InputError message={errors.name} className="mt-2" />
@@ -56,6 +57,7 @@ export default function Register() {
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         required
+                        placeholder="patrick@gmail.com"
                     />
 
                     <InputError message={errors.email} className="mt-2" />

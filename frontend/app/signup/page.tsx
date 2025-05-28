@@ -64,12 +64,12 @@ export default function SignupPage() {
                     <Label htmlFor="first-name">First name</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="first-name" name="first-name" placeholder="John" className="pl-10" />
+                      <Input id="first-name" name="first-name" placeholder="Patrick" className="pl-10" />
                     </div>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" name="last-name" placeholder="Doe" />
+                    <Input id="last-name" name="last-name" placeholder="Ndaziramiye" />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -79,7 +79,7 @@ export default function SignupPage() {
                     <Input
                       id="email"
                       name="email"
-                      placeholder="name@example.com"
+                      placeholder="patrick@gmail.com"
                       type="email"
                       autoCapitalize="none"
                       autoComplete="email"

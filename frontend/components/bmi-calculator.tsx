@@ -55,10 +55,12 @@ export function BmiCalculator() {
         height: parseFloat(height),
         weight: parseFloat(weight),
       });
+      console.log("BMI Calculation Response:", response.data);
       setBmiData(response.data);
       fetchBmiHistory();
     } catch (err: any) {
       setError(err.response?.data?.message || "Error calculating BMI");
+      console.error("BMI Calculation Error:", err);
     } finally {
       setLoading(false);
     }

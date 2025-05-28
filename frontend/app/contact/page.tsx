@@ -29,17 +29,17 @@ export default function ContactPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="first-name">First Name</Label>
-                  <Input id="first-name" placeholder="John" />
+                  <Input id="first-name" placeholder="Patrick" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="last-name">Last Name</Label>
-                  <Input id="last-name" placeholder="Doe" />
+                  <Input id="last-name" placeholder="Ndaziramiye" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="john.doe@example.com" />
+                <Input id="email" type="email" placeholder="patrick@gmail.com" />
               </div>
 
               <div className="space-y-2">

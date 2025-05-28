@@ -17,7 +17,8 @@ class ContentController extends Controller
     public function index()
     {
         // Only retrieve content for the authenticated user
-        $contents = Auth::user()->contents()->latest()->get();
+        // Eager load the user relationship to get author information
+        $contents = Auth::user()->contents()->with('user')->latest()->get();
 
         return response()->json($contents);
     }

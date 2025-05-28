@@ -36,9 +36,9 @@ export default function Home() {
             <div className="flex justify-center">
               <div className="relative w-full max-w-[500px] aspect-square">
                 <img
-                  src="https://bmicalc.com/assets/images/bmi-chart.png"
+                  src="https://www.cdc.gov/healthyweight/images/assessing/bmi-adult-fb-600x315.jpg"
                   alt="FitLife Monitor Dashboard Preview"
-                  className="rounded-lg shadow-xl"
+                  className="rounded-lg shadow-xl object-cover w-full h-full"
                 />
                 <div className="absolute -bottom-6 -right-6 bg-background rounded-lg shadow-lg p-4 border border-border">
                   <div className="flex items-center gap-2">

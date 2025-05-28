@@ -79,34 +79,34 @@ export default function AboutPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[
                 {
-                  name: "Dr. Sarah Johnson",
+                  name: "Patrick Ndaziramiye",
                   role: "Chief Medical Officer",
-                  bio: "Board-certified physician with a passion for preventive health and nutrition.",
+                  bio: "Board-certified physician specializing in preventive medicine and digital health innovation.",
                 },
                 {
-                  name: "Michael Chen",
+                  name: "Jean D'Amour Kubwimana",
                   role: "Lead Data Scientist",
-                  bio: "Expert in AI and machine learning with a focus on health analytics.",
+                  bio: "AI expert with a focus on health analytics and machine learning applications.",
                 },
                 {
-                  name: "Priya Patel",
+                  name: "Nishimwe Gad",
                   role: "Head of Product",
-                  bio: "Product leader with experience in health tech and user-centered design.",
+                  bio: "Product leader with expertise in health tech and user experience design.",
                 },
                 {
-                  name: "James Wilson",
+                  name: "Niyonkuru Jean de Dieu",
                   role: "Chief Technology Officer",
-                  bio: "Software engineer specializing in secure health data systems.",
+                  bio: "Software architect specializing in secure health data systems and cloud infrastructure.",
                 },
                 {
-                  name: "Maria Rodriguez",
-                  role: "Nutritionist",
-                  bio: "Registered dietitian with expertise in personalized nutrition plans.",
+                  name: "Mr. Daven",
+                  role: "Senior Nutritionist",
+                  bio: "Registered dietitian with expertise in personalized nutrition and wellness coaching.",
                 },
                 {
-                  name: "David Kim",
-                  role: "Fitness Specialist",
-                  bio: "Certified personal trainer focused on accessible fitness for all levels.",
+                  name: "Bwana Oreste",
+                  role: "Fitness Director",
+                  bio: "Certified personal trainer and wellness coach focused on sustainable fitness programs.",
                 },
               ].map((member, i) => (
                 <div key={i} className="flex flex-col items-center text-center">

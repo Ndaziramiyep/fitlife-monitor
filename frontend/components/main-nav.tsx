@@ -16,25 +16,36 @@ import {
 import { Activity, BarChart2, MessageSquare, Award, Users } from "lucide-react"
 
 export function MainNav() {
-  const pathname = usePathname()
+  const pathname = usePathname() || ""
 
   return (
     <div className="mr-4 hidden md:flex">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink 
+              asChild 
+              className={cn(
+                navigationMenuTriggerStyle(),
+                pathname === "/" && "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
               <Link href="/">Home</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Features</NavigationMenuTrigger>
+            <NavigationMenuTrigger className={cn(
+              pathname.startsWith("/features") && "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}>Features</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
                 <li className="row-span-3">
                   <NavigationMenuLink asChild>
                     <a
-                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-primary/20 to-primary/5 p-6 no-underline outline-none focus:shadow-md"
+                      className={cn(
+                        "flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-primary/20 to-primary/5 p-6 no-underline outline-none focus:shadow-md",
+                        pathname === "/dashboard" && "bg-primary/20"
+                      )}
                       href="/dashboard"
                     >
                       <Activity className="h-6 w-6 text-primary" />
@@ -49,6 +60,7 @@ export function MainNav() {
                   href="/bmi-calculator"
                   title="BMI Calculator"
                   icon={<Activity className="h-4 w-4 text-primary" />}
+                  className={pathname === "/bmi-calculator" ? "bg-primary/10" : ""}
                 >
                   Calculate and understand your Body Mass Index
                 </ListItem>
@@ -56,6 +68,7 @@ export function MainNav() {
                   href="/progress"
                   title="Progress Tracking"
                   icon={<BarChart2 className="h-4 w-4 text-primary" />}
+                  className={pathname === "/progress" ? "bg-primary/10" : ""}
                 >
                   Monitor your health metrics over time
                 </ListItem>
@@ -63,44 +76,85 @@ export function MainNav() {
                   href="/chatbot"
                   title="AI Health Assistant"
                   icon={<MessageSquare className="h-4 w-4 text-primary" />}
+                  className={pathname === "/chatbot" ? "bg-primary/10" : ""}
                 >
                   Get personalized health advice
                 </ListItem>
-                <ListItem href="/achievements" title="Achievements" icon={<Award className="h-4 w-4 text-primary" />}>
+                <ListItem 
+                  href="/achievements" 
+                  title="Achievements" 
+                  icon={<Award className="h-4 w-4 text-primary" />}
+                  className={pathname === "/achievements" ? "bg-primary/10" : ""}
+                >
                   Track your health milestones
                 </ListItem>
-                <ListItem href="/community" title="Community" icon={<Users className="h-4 w-4 text-primary" />}>
+                <ListItem 
+                  href="/community" 
+                  title="Community" 
+                  icon={<Users className="h-4 w-4 text-primary" />}
+                  className={pathname === "/community" ? "bg-primary/10" : ""}
+                >
                   Connect with other health enthusiasts
                 </ListItem>
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+            <NavigationMenuTrigger className={cn(
+              pathname.startsWith("/resources") && "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}>Resources</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                <ListItem href="/how-it-works" title="How It Works">
+                <ListItem 
+                  href="/how-it-works" 
+                  title="How It Works"
+                  className={pathname === "/how-it-works" ? "bg-primary/10" : ""}
+                >
                   Learn about our methodology and technology
                 </ListItem>
-                <ListItem href="/research" title="Research & Science">
+                <ListItem 
+                  href="/research" 
+                  title="Research & Science"
+                  className={pathname === "/research" ? "bg-primary/10" : ""}
+                >
                   The scientific basis of our recommendations
                 </ListItem>
-                <ListItem href="/blog" title="Health Articles">
+                <ListItem 
+                  href="/blog" 
+                  title="Health Articles"
+                  className={pathname === "/blog" ? "bg-primary/10" : ""}
+                >
                   Latest insights on health and wellness
                 </ListItem>
-                <ListItem href="/faq" title="FAQ">
+                <ListItem 
+                  href="/faq" 
+                  title="FAQ"
+                  className={pathname === "/faq" ? "bg-primary/10" : ""}
+                >
                   Answers to common questions
                 </ListItem>
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink 
+              asChild 
+              className={cn(
+                navigationMenuTriggerStyle(),
+                pathname === "/about" && "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
               <Link href="/about">About</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink 
+              asChild 
+              className={cn(
+                navigationMenuTriggerStyle(),
+                pathname === "/contact" && "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
               <Link href="/contact">Contact</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>

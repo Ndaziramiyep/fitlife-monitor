@@ -28,6 +28,7 @@ class User extends Authenticatable implements OAuthenticatable
         'height',
         'weight',
         'fitness_goal',
+        'is_admin',
     ];
 
     /**

@@ -76,4 +76,14 @@ class AdminController extends Controller
         $user->save();
         return $user;
     }
+
+    // Method to get all activities
+    public function getAllActivities()
+    {
+        $activities = Activity::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($activities);
+    }
 } 

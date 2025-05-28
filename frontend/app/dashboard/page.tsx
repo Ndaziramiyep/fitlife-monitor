@@ -8,10 +8,21 @@ import Link from "next/link"
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/src/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BmiCalculator } from "@/components/bmi-calculator";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setAuthToken(null);
+    router.push('/login');
+  };
 
   useEffect(() => {
     getCurrentUser().then(setUser).finally(() => setLoading(false));
@@ -48,10 +59,15 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <Button variant="outline" size="sm">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* BMI Status Card */}
@@ -101,13 +117,42 @@ export default function DashboardPage() {
         </Card>
 
         {/* Dashboard Tabs */}
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="bmi" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="bmi">BMI Calculator</TabsTrigger>
+            <TabsTrigger value="workouts">Workouts</TabsTrigger>
+            <TabsTrigger value="stats">Statistics</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="bmi" className="space-y-4 pt-4">
+            <BmiCalculator />
+          </TabsContent>
+
+          <TabsContent value="workouts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Workouts</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Workout content will go here */}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <Card>
+              <CardHeader>
+                <CardTitle>Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Stats content will go here */}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-4 pt-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

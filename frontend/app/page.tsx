@@ -7,11 +7,11 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-primary/20 to-background">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-            <div className="flex flex-col justify-center space-y-4">
-              <div className="space-y-2">
+      <section className="w-full py-4 md:py-8 lg:py-12 bg-gradient-to-b from-primary/20 to-background">
+        <div className="container px-2 md:px-4">
+          <div className="grid gap-3 lg:grid-cols-2 lg:gap-6 items-center">
+            <div className="flex flex-col justify-center space-y-2">
+              <div className="space-y-1">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                   Monitor Your Health with FitLife
                 </h1>
@@ -20,7 +20,7 @@ export default function Home() {
                   your fitness goals.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row">
+              <div className="flex flex-col gap-1 min-[400px]:flex-row">
                 <Button size="lg" asChild>
                   <Link href="/signup">
                     <div className="flex items-center">
@@ -52,21 +52,21 @@ export default function Home() {
         </div>
       </section>
       {/* Features Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
+      <section className="w-full py-4 md:py-8 lg:py-12 bg-background">
+        <div className="container px-2 md:px-4">
+          <div className="flex flex-col items-center justify-center space-y-2 text-center">
+            <div className="space-y-1">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Key Features</h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Everything you need to monitor and improve your health in one place
               </p>
             </div>
           </div>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-2">
             <Card>
               <CardHeader>
                 <Activity className="h-6 w-6 text-primary" />
-                <CardTitle className="mt-2">BMI Calculator</CardTitle>
+                <CardTitle className="mt-1">BMI Calculator</CardTitle>
                 <CardDescription>
                   Calculate your Body Mass Index and understand what it means for your health
                 </CardDescription>
@@ -84,7 +84,7 @@ export default function Home() {
             <Card>
               <CardHeader>
                 <BarChart2 className="h-6 w-6 text-primary" />
-                <CardTitle className="mt-2">Progress Tracking</CardTitle>
+                <CardTitle className="mt-1">Progress Tracking</CardTitle>
                 <CardDescription>
                   Monitor your health metrics over time with interactive charts and insights
                 </CardDescription>
@@ -102,7 +102,7 @@ export default function Home() {
             <Card>
               <CardHeader>
                 <MessageSquare className="h-6 w-6 text-primary" />
-                <CardTitle className="mt-2">AI Health Assistant</CardTitle>
+                <CardTitle className="mt-1">AI Health Assistant</CardTitle>
                 <CardDescription>Get personalized advice and answers to your health questions</CardDescription>
               </CardHeader>
               <CardFooter>
@@ -119,21 +119,21 @@ export default function Home() {
         </div>
       </section>
       {/* Testimonials */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/50">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
+      <section className="w-full py-4 md:py-8 lg:py-12 bg-muted/50">
+        <div className="container px-2 md:px-4">
+          <div className="flex flex-col items-center justify-center space-y-2 text-center">
+            <div className="space-y-1">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">What Our Users Say</h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Join thousands of users who have improved their health with FitLife Monitor
               </p>
             </div>
           </div>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-3 mt-8">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-3 mt-2">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="bg-background">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-4 mb-4">
+                <CardContent className="pt-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="rounded-full bg-primary/10 p-2">
                       <User className="h-6 w-6 text-primary" />
                     </div>
@@ -153,10 +153,10 @@ export default function Home() {
         </div>
       </section>
       {/* CTA Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-primary text-primary-foreground">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
+      <section className="w-full py-4 md:py-8 lg:py-12 bg-primary text-primary-foreground">
+        <div className="container px-2 md:px-4">
+          <div className="flex flex-col items-center justify-center space-y-2 text-center">
+            <div className="space-y-1">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
                 Start Your Health Journey Today
               </h2>
@@ -164,7 +164,7 @@ export default function Home() {
                 Join FitLife Monitor and take control of your health with our comprehensive tools and AI assistant
               </p>
             </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+            <div className="flex flex-col gap-1 min-[400px]:flex-row">
               <Button size="lg" variant="secondary" asChild>
                 <Link href="/signup">
                   <div className="flex items-center">

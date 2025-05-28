@@ -43,20 +43,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-screen flex-col items-center justify-center">
+    <div className="container flex h-screen flex-col items-center justify-center bg-background text-foreground">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
           <p className="text-sm text-muted-foreground">Enter your credentials to sign in to your account</p>
         </div>
-        <Card>
+        <Card className="bg-card text-card-foreground shadow-lg">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-primary" />
                     <Input
                       id="email"
                       name="email"
@@ -65,7 +65,7 @@ export default function LoginPage() {
                       autoCapitalize="none"
                       autoComplete="email"
                       autoCorrect="off"
-                      className="pl-10"
+                      className="pl-10 bg-background text-foreground"
                     />
                   </div>
                 </div>
@@ -77,8 +77,8 @@ export default function LoginPage() {
                     </Link>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-primary" />
+                    <Input id="password" name="password" type="password" placeholder="••••••••" className="pl-10 bg-background text-foreground" />
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -105,11 +105,11 @@ export default function LoginPage() {
 
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <Button variant="outline" className="w-full">
-                  <Google className="mr-2 h-4 w-4" />
+                  <Google className="mr-2 h-4 w-4 text-primary" />
                   Google
                 </Button>
                 <Button variant="outline" className="w-full">
-                  <Github className="mr-2 h-4 w-4" />
+                  <Github className="mr-2 h-4 w-4 text-primary" />
                   GitHub
                 </Button>
               </div>

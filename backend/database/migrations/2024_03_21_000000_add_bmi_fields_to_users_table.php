@@ -6,23 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_admin')->default(false)->nullable(false);
+            $table->decimal('bmi', 5, 2)->nullable();
+            $table->string('bmi_category')->nullable();
+            $table->timestamp('last_bmi_calculation')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_admin');
+            $table->dropColumn(['bmi', 'bmi_category', 'last_bmi_calculation']);
         });
     }
-};
+}; 

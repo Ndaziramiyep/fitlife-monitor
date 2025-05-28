@@ -17,15 +17,30 @@ Route::post('/register', function (Request $request) {
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
+        $isFirstUser = \App\Models\User::count() === 0;
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'is_admin' => $isFirstUser,
         ]);
+
+        // Log user registration
+        \App\Models\Activity::create([
+            'user_id' => $user->id,
+            'type' => 'user_registered',
+            'description' => 'New user registered: ' . $user->email,
+        ]);
+
         $token = $user->createToken('api-token')->accessToken;
         return response()->json(['user' => $user, 'token' => $token], 201);
     } catch (\Exception $e) {
-        return response()->json(['message' => $e->getMessage()], 400);
+        // Log the exception for debugging
+        \Log::error('Registration failed: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json([
+            'message' => 'Internal Server Error',
+            'error' => $e->getMessage() // Include the specific error message
+        ], 500); // Return 500 for server errors
     }
 });
 
@@ -78,6 +93,14 @@ Route::middleware('auth:api')->group(function () {
         ]);
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
+
+        // Log admin user creation
+        \App\Models\Activity::create([
+            'user_id' => auth()->id(), // Assuming admin is logged in
+            'type' => 'admin_created_user',
+            'description' => 'Admin created new user: ' . $user->email,
+        ]);
+
         return $user;
     });
 
@@ -104,6 +127,14 @@ Route::middleware('auth:api')->group(function () {
             $user->save();
         }
         $user->update($data);
+
+        // Log admin user update
+        \App\Models\Activity::create([
+            'user_id' => auth()->id(), // Assuming admin is logged in
+            'type' => 'admin_updated_user',
+            'description' => 'Admin updated user: ' . $user->email,
+        ]);
+
         return $user;
     });
 
@@ -114,6 +145,14 @@ Route::middleware('auth:api')->group(function () {
         }
         $user = User::findOrFail($id);
         $user->delete();
+
+        // Log admin user deletion
+        \App\Models\Activity::create([
+            'user_id' => auth()->id(), // Assuming admin is logged in
+            'type' => 'admin_deleted_user',
+            'description' => 'Admin deleted user with ID: ' . $id,
+        ]);
+
         return response()->json(['message' => 'User deleted']);
     });
 
@@ -136,4 +175,11 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::get('/admin/dashboard/stats', [App\Http\Controllers\Admin\AdminController::class, 'getDashboardStats']);
+
+    // BMI Calculator routes
+    Route::post('/bmi/calculate', [App\Http\Controllers\Api\BmiController::class, 'calculate']);
+    Route::get('/bmi/history', [App\Http\Controllers\Api\BmiController::class, 'getHistory']);
+
+    // Route to get all activities (Admin only)
+    Route::get('/activities', [App\Http\Controllers\Admin\AdminController::class, 'getAllActivities']);
 });

@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/src/services/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BmiCalculator } from "@/components/bmi-calculator";
 import { useRouter } from "next/navigation";
+import api, { setAuthToken } from "@/src/services/api";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -18,7 +19,13 @@ export default function DashboardPage() {
 
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await api.post('/logout'); // Call the backend logout endpoint
+    } catch (error) {
+      console.error('Logout failed on backend:', error);
+      // Continue with local logout even if backend call fails
+    }
     localStorage.removeItem('token');
     setAuthToken(null);
     router.push('/login');

@@ -82,8 +82,26 @@ class AdminController extends Controller
     {
         $activities = Activity::with('user')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'id' => $activity->id,
+                    'user_name' => $activity->user ? $activity->user->name : null,
+                    'type' => $activity->type,
+                    'description' => $activity->description,
+                    'created_at' => $activity->created_at,
+                ];
+            });
 
         return response()->json($activities);
+    }
+
+    // Method to delete an activity
+    public function deleteActivity($id)
+    {
+        $activity = Activity::findOrFail($id);
+        $activity->delete();
+
+        return response()->json(['message' => 'Activity log removed']);
     }
 } 

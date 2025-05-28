@@ -182,4 +182,20 @@ Route::middleware('auth:api')->group(function () {
 
     // Route to get all activities (Admin only)
     Route::get('/activities', [App\Http\Controllers\Admin\AdminController::class, 'getAllActivities']);
+
+    // Route to delete an activity (Admin only)
+    Route::delete('/activities/{id}', [App\Http\Controllers\Admin\AdminController::class, 'deleteActivity']);
+});
+
+Route::middleware('auth:api')->post('/logout', function (Request $request) {
+    $request->user()->token()->revoke();
+
+    // Log user logout
+    \App\Models\Activity::create([
+        'user_id' => $request->user()->id,
+        'type' => 'user_logged_out',
+        'description' => 'User logged out: ' . $request->user()->email,
+    ]);
+
+    return response()->json(['message' => 'Successfully logged out']);
 });

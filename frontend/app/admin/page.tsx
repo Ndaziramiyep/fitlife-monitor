@@ -77,6 +77,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteActivity = async (activityId: number) => {
+    if (confirm('Are you sure you want to remove this activity log?')) {
+      try {
+        await api.delete(`/activities/${activityId}`); // Assuming DELETE /api/activities/{id} endpoint
+        fetchDashboardData(); // Refresh activity list
+      } catch (error: any) {
+        alert('Failed to remove activity: ' + (error.response?.data?.message || error.message));
+      }
+    }
+  };
+
   if (loading) return <div>Loading dashboard...</div>;
   if (!isAdmin) return null;
   if (error) return <div>{error}</div>;
@@ -196,6 +207,20 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* User Management Card */}
+      <Card className="mt-8">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">User Management</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <CardDescription>View, edit, and manage all user accounts.</CardDescription>
+          <Link href="/admin/users" passHref>
+            <ShadcnButton className="mt-4">Manage Users</ShadcnButton>
+          </Link>
+        </CardContent>
+      </Card>
+
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
@@ -233,7 +258,7 @@ export default function AdminDashboard() {
            <div className="space-y-4 text-sm text-muted-foreground">
              {recentActivities.length > 0 ? (
                recentActivities.map((activity: any) => (
-                 <div key={activity.id} className="flex items-center justify-between">
+                 <div key={activity.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
                    <div>
                      <p className="font-medium text-foreground">{activity.description}</p>
                      <p className="text-xs">By {activity.user_name || 'System'}</p>
@@ -241,6 +266,9 @@ export default function AdminDashboard() {
                    <div className="text-xs">
                      {new Date(activity.created_at).toLocaleString()}
                    </div>
+                   <ShadcnButton variant="ghost" size="sm" onClick={() => handleDeleteActivity(activity.id)}>
+                     Remove
+                   </ShadcnButton>
                  </div>
                ))
              ) : (

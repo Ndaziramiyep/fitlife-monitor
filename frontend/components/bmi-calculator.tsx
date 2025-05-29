@@ -29,7 +29,7 @@ export function BmiCalculator() {
   const [bmiData, setBmiData] = useState<BmiData | null>(null);
   const [history, setHistory] = useState<BmiHistory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>("");
 
   useEffect(() => {
     fetchBmiHistory();
@@ -81,6 +81,17 @@ export function BmiCalculator() {
     }
   };
 
+  const handleDeleteHistory = async (id: number) => {
+    try {
+      // Implement API call to delete history item
+      // await api.delete(`/bmi/history/${id}`);
+      // After successful deletion, update the history state
+      // setHistory(history.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Failed to delete BMI history:', error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -125,7 +136,7 @@ export function BmiCalculator() {
           </form>
 
           {error && (
-            <div className="mt-4 text-sm text-red-500">{error}</div>
+            <div className="mt-4 text-sm text-red-500">{typeof error === 'string' ? error : 'An unknown error occurred.'}</div>
           )}
 
           {bmiData && (
@@ -135,19 +146,19 @@ export function BmiCalculator() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Your BMI:</span>
                   <span className={`text-lg font-bold ${getBmiColor(bmiData.category)}`}>
-                    {bmiData.bmi}
+                    {typeof bmiData.bmi === 'number' ? bmiData.bmi.toFixed(1) : 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Category:</span>
                   <span className={`text-sm font-medium ${getBmiColor(bmiData.category)}`}>
-                    {bmiData.category}
+                    {typeof bmiData.category === 'string' ? bmiData.category : 'N/A'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Last calculated:</span>
                   <span className="text-sm text-muted-foreground">
-                    {format(new Date(bmiData.last_calculated), "MMM d, yyyy HH:mm")}
+                    {typeof bmiData.last_calculated === 'string' ? format(new Date(bmiData.last_calculated), "MMM d, yyyy HH:mm") : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -169,6 +180,7 @@ export function BmiCalculator() {
                   <span className="text-sm text-muted-foreground">
                     {format(new Date(item.created_at), "MMM d, yyyy")}
                   </span>
+                  <Button variant="destructive" size="sm" onClick={() => handleDeleteHistory(item.id)}>Delete</Button>
                 </div>
               ))}
             </div>

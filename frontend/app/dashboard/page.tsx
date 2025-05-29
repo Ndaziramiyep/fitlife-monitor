@@ -12,11 +12,36 @@ import { BmiCalculator } from "@/components/bmi-calculator";
 import { useRouter } from "next/navigation";
 import api, { setAuthToken } from "@/src/services/api";
 
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  height: number | null;
+  weight: number | null;
+  fitness_goal: string | null;
+  bmi: number | null;
+  bmi_category: string | null;
+  last_bmi_calculation: string | null;
+}
+
+interface BmiCurrentData {
+  bmi: number;
+  category: string;
+  height: number;
+  weight: number;
+  last_calculated: string;
+}
+
+interface BmiHistoryResponse {
+  current: BmiCurrentData;
+  history: any[]; // You might want to define a proper type for history items later
+}
+
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [bmiData, setBmiData] = useState<any>(null);
+  const [bmiData, setBmiData] = useState<BmiCurrentData | null>(null);
   const [loadingBmi, setLoadingBmi] = useState(true);
 
   const router = useRouter();
@@ -29,19 +54,31 @@ export default function DashboardPage() {
       // Fetch user only if token exists
       getCurrentUser().then(setUser).finally(() => setLoading(false));
       // Fetch BMI data
-      api.get('/api/bmi/history')
+      api.get('/bmi/history')
         .then(response => {
-          const currentBmi = response.data.current;
-          setBmiData({
-            value: currentBmi.bmi,
-            category: currentBmi.category,
-            lastCalculated: currentBmi.last_calculated
-          });
+          const data = response.data as BmiHistoryResponse;
+          if (data && data.current) {
+            setBmiData(data.current);
+            // Update user state with latest height and weight from BMI data
+            setUser(prevUser => ({
+              ...prevUser,
+              height: data.current.height,
+              weight: data.current.weight,
+              bmi: data.current.bmi,
+              bmi_category: data.current.category,
+              last_bmi_calculation: data.current.last_calculated,
+            } as UserData)); // Explicitly cast to UserData
+          } else {
+            setBmiData(null);
+          }
         })
-        .catch(error => console.error('Failed to fetch BMI data:', error))
+        .catch(error => {
+          console.error('Failed to fetch BMI data:', error);
+          setBmiData(null);
+        })
         .finally(() => setLoadingBmi(false));
     }
-  }, [router]); // Add router to dependencies array
+  }, [router]);
 
   const handleLogout = async () => {
     try {
@@ -76,6 +113,7 @@ export default function DashboardPage() {
                   <span className="text-sm">Weight: {user?.weight ?? "-"} kg</span>
                   <span className="text-sm">Goal: {user.fitness_goal ?? "-"}</span>
                 </div>
+                <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
               </>
             ) : (
               <div>Failed to load profile.</div>
@@ -161,7 +199,7 @@ export default function DashboardPage() {
       <Card className="bg-gradient-to-r from-primary/10 to-primary/5">
         <CardHeader>
           <CardTitle>Your BMI Status</CardTitle>
-          <CardDescription>Last updated: {bmiData?.lastCalculated ? new Date(bmiData.lastCalculated).toLocaleDateString() : '-'}</CardDescription>
+          <CardDescription>Last updated: {bmiData?.last_calculated ? new Date(bmiData.last_calculated).toLocaleDateString() : '-'}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-6 items-center">
@@ -169,8 +207,8 @@ export default function DashboardPage() {
               <div className="absolute inset-0 flex items-center justify-center">
                 {loadingBmi ? (
                   <span className="text-xl font-bold">Loading...</span>
-                ) : bmiData ? (
-                  <span className="text-4xl font-bold">{bmiData.value.toFixed(1)}</span>
+                ) : typeof bmiData?.bmi === 'number' ? (
+                  <span className="text-4xl font-bold">{bmiData.bmi.toFixed(1)}</span>
                 ) : (
                   <span className="text-xl font-bold">N/A</span>
                 )}
@@ -185,7 +223,7 @@ export default function DashboardPage() {
                   stroke="currentColor"
                   strokeWidth="10"
                   strokeDasharray="283"
-                  strokeDashoffset={bmiData ? 283 - (bmiData.value / 40) * 283 : 283}
+                  strokeDashoffset={typeof bmiData?.bmi === 'number' ? 283 - (bmiData.bmi / 40) * 283 : 283}
                   className="text-primary"
                 />
               </svg>
@@ -195,9 +233,9 @@ export default function DashboardPage() {
                 <h3 className="text-xl font-medium mb-2">Loading...</h3>
               ) : bmiData ? (
                 <>
-                  <h3 className={`text-xl font-medium mb-2 ${bmiData.category === 'Healthy Weight' ? 'text-primary' : ''}`}>{bmiData.category}</h3>
+                  <h3 className={`text-xl font-medium mb-2 ${bmiData.category === 'Normal weight' ? 'text-primary' : ''}`}>{bmiData.category}</h3>
                   <p className="text-muted-foreground mb-4">
-                    {bmiData.category === 'Healthy Weight'
+                    {bmiData.category === 'Normal weight'
                       ? 'Your BMI is within the healthy range of 18.5 to 24.9. Keep up the good work!'
                       : bmiData.category === 'Underweight'
                       ? 'Your BMI is in the underweight range. Consider consulting a professional.'
@@ -214,7 +252,7 @@ export default function DashboardPage() {
               <div className="w-full bg-muted rounded-full h-4 mb-2">
                 <div
                   className={`h-4 rounded-full ${
-                    bmiData?.category === 'Healthy Weight' 
+                    bmiData?.category === 'Normal weight' 
                       ? 'bg-primary' 
                       : bmiData?.category === 'Underweight' 
                       ? 'bg-yellow-500' 
@@ -224,7 +262,7 @@ export default function DashboardPage() {
                       ? 'bg-red-500' 
                       : 'bg-muted'
                   }`}
-                  style={{ width: bmiData ? `${Math.min(100, (bmiData.value / 40) * 100)}%` : '0%' }}
+                  style={{ width: typeof bmiData?.bmi === 'number' ? `${Math.min(100, (bmiData.bmi / 40) * 100)}%` : '0%' }}
                 ></div>
               </div>
               <div className="flex justify-between text-xs text-muted-foreground">

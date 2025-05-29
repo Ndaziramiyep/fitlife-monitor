@@ -238,6 +238,38 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Key User Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Current Weight</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{user?.weight ?? "-"} kg</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Current Height</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{user?.height ?? "-"} cm</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Daily Activity</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Moderate</div>
+            <p className="text-xs text-muted-foreground">Based on your profile settings</p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Dashboard Tabs */}
       <Tabs defaultValue="bmi" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
@@ -277,37 +309,6 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="overview" className="space-y-4 pt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Current Weight</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{user?.weight ?? "-"} kg</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Current Height</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{user?.height ?? "-"} cm</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Daily Activity</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Moderate</div>
-                <p className="text-xs text-muted-foreground">Based on your profile settings</p>
-              </CardContent>
-            </Card>
-          </div>
-
           <Card>
             <CardHeader>
               <CardTitle>Daily Health Tips</CardTitle>

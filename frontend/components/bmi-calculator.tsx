@@ -38,8 +38,13 @@ export function BmiCalculator() {
   const fetchBmiHistory = async () => {
     try {
       const response = await api.get("/bmi/history");
-      setBmiData(response.data.current);
+      const currentBmi = response.data.current;
+      setBmiData({
+        ...currentBmi,
+        bmi: parseFloat(currentBmi.bmi)
+      });
       setHistory(response.data.history);
+      console.log('Fetched BMI History:', response.data);
     } catch (err) {
       console.error("Error fetching BMI history:", err);
     }
@@ -84,11 +89,15 @@ export function BmiCalculator() {
   const handleDeleteHistory = async (id: number) => {
     try {
       // Implement API call to delete history item
-      // await api.delete(`/bmi/history/${id}`);
+      await api.delete(`/bmi/history/${id}`);
       // After successful deletion, update the history state
-      // setHistory(history.filter(item => item.id !== id));
+      setHistory(history.filter(item => item.id !== id));
+      // Also refresh the current BMI data in case the latest entry was deleted
+      fetchBmiHistory();
     } catch (error) {
       console.error('Failed to delete BMI history:', error);
+      // Optionally show a user-friendly error message
+      setError('Failed to delete history item.');
     }
   };
 

@@ -76,6 +76,7 @@ Route::middleware('auth:api')->group(function () {
     // BMI Routes
     Route::post('/bmi/calculate', [App\Http\Controllers\Api\BmiController::class, 'calculate']);
     Route::get('/bmi/history', [App\Http\Controllers\Api\BmiController::class, 'getHistory']);
+    Route::delete('/bmi/history/{id}', [App\Http\Controllers\Api\BmiController::class, 'deleteHistory']);
 
     // List all users (admin only)
     Route::get('/users', function () {

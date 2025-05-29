@@ -78,4 +78,23 @@ class BmiController extends Controller
             'history' => $activities,
         ]);
     }
+
+    public function deleteHistory(Request $request, $id): JsonResponse
+    {
+        $user = $request->user();
+
+        // Find the activity log entry by ID and user ID
+        $activity = Activity::where('id', $id)
+                            ->where('user_id', $user->id)
+                            ->where('type', 'bmi_calculated')
+                            ->first();
+
+        if (!$activity) {
+            return response()->json(['message' => 'History entry not found or does not belong to the user.'], 404);
+        }
+
+        $activity->delete();
+
+        return response()->json(['message' => 'History entry deleted successfully.']);
+    }
 } 

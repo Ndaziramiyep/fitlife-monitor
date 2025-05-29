@@ -73,6 +73,10 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::apiResource('workouts', WorkoutController::class);
 
+    // BMI Routes
+    Route::post('/bmi/calculate', [App\Http\Controllers\Api\BmiController::class, 'calculate']);
+    Route::get('/bmi/history', [App\Http\Controllers\Api\BmiController::class, 'getHistory']);
+
     // List all users (admin only)
     Route::get('/users', function () {
         if (!auth()->user()->is_admin) {
@@ -204,10 +208,6 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::get('/admin/dashboard/stats', [App\Http\Controllers\Admin\AdminController::class, 'getDashboardStats']);
-
-    // BMI Calculator routes
-    Route::post('/bmi/calculate', [App\Http\Controllers\Api\BmiController::class, 'calculate']);
-    Route::get('/bmi/history', [App\Http\Controllers\Api\BmiController::class, 'getHistory']);
 
     // Route to get all activities (Admin only)
     Route::get('/activities', [App\Http\Controllers\Admin\AdminController::class, 'getAllActivities']);

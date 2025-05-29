@@ -29,6 +29,9 @@ class User extends Authenticatable implements OAuthenticatable
         'weight',
         'fitness_goal',
         'is_admin',
+        'bmi',
+        'bmi_category',
+        'last_bmi_calculation',
     ];
 
     /**
@@ -53,10 +56,12 @@ class User extends Authenticatable implements OAuthenticatable
         'height' => 'decimal:2',
         'weight' => 'decimal:2',
         'permissions' => 'array',
+        'bmi' => 'decimal:2',
+        'last_bmi_calculation' => 'datetime',
     ];
 
     protected $visible = [
-        'id', 'name', 'email', 'is_admin', 'height', 'weight',
+        'id', 'name', 'email', 'is_admin', 'height', 'weight', 'bmi', 'bmi_category', 'last_bmi_calculation',
     ];
 
     public function workouts()

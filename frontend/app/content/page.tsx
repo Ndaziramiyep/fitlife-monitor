@@ -36,6 +36,14 @@ export default function ContentManagementPage() {
   });
 
   useEffect(() => {
+    // Check for authentication token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Redirect to login page if no token is found
+      window.location.href = '/login';
+      return; // Stop execution of the rest of the effect
+    }
+
     fetchContents();
   }, []);
 

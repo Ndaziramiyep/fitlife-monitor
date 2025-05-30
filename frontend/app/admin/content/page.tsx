@@ -1,380 +1,217 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
+import { useEffect, useState } from "react"
+import api from "@/src/services/api"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Search, MoreHorizontal, Filter, PlusCircle, MessageSquare, BookOpen, Lightbulb } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Trash2, Edit } from "lucide-react"
 
-export default function ContentManagement() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("health-tips")
+interface Content {
+  id: number
+  user_id: number
+  title: string
+  body: string
+  status: string
+  created_at: string
+  updated_at: string
+  user?: {
+    name: string
+  }
+}
 
-  // Mock content data
-  const healthTips = [
-    {
-      id: "1",
-      title: "Stay Hydrated Throughout the Day",
-      category: "Nutrition",
-      status: "published",
-      author: "Dr. Sarah Johnson",
-      publishDate: "2023-05-15",
-      views: 1245,
-    },
-    {
-      id: "2",
-      title: "Benefits of Morning Stretching",
-      category: "Exercise",
-      status: "published",
-      author: "Michael Chen, PT",
-      publishDate: "2023-05-20",
-      views: 987,
-    },
-    {
-      id: "3",
-      title: "Mindfulness for Stress Reduction",
-      category: "Mental Health",
-      status: "draft",
-      author: "Dr. Emily Williams",
-      publishDate: "-",
-      views: 0,
-    },
-    {
-      id: "4",
-      title: "Healthy Snack Alternatives",
-      category: "Nutrition",
-      status: "published",
-      author: "Nutritionist Team",
-      publishDate: "2023-06-01",
-      views: 2156,
-    },
-    {
-      id: "5",
-      title: "Improving Sleep Quality",
-      category: "Wellness",
-      status: "review",
-      author: "Dr. James Wilson",
-      publishDate: "-",
-      views: 0,
-    },
-  ]
+export default function ContentManagementPage() {
+  const [contents, setContents] = useState<Content[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentContent, setCurrentContent] = useState<Content | null>(null) // For editing
+  const [form, setForm] = useState({
+    title: '',
+    body: '',
+    status: 'draft', // Default status
+  })
 
-  const articles = [
-    {
-      id: "1",
-      title: "Understanding BMI: Benefits and Limitations",
-      category: "Health Education",
-      status: "published",
-      author: "Dr. Robert Smith",
-      publishDate: "2023-04-10",
-      views: 3245,
-    },
-    {
-      id: "2",
-      title: "The Science of Weight Loss",
-      category: "Nutrition",
-      status: "published",
-      author: "Nutritionist Team",
-      publishDate: "2023-05-05",
-      views: 4567,
-    },
-    {
-      id: "3",
-      title: "Building a Sustainable Exercise Routine",
-      category: "Exercise",
-      status: "published",
-      author: "Fitness Team",
-      publishDate: "2023-05-12",
-      views: 2890,
-    },
-  ]
-
-  const chatbotResponses = [
-    {
-      id: "1",
-      query: "How to calculate BMI?",
-      response: "BMI is calculated by dividing your weight in kilograms by your height in meters squared...",
-      category: "Calculations",
-      lastUpdated: "2023-06-01",
-    },
-    {
-      id: "2",
-      query: "What is a healthy diet?",
-      response: "A healthy diet includes a variety of fruits, vegetables, whole grains, lean proteins...",
-      category: "Nutrition",
-      lastUpdated: "2023-05-28",
-    },
-    {
-      id: "3",
-      query: "How much exercise do I need?",
-      response: "Adults should aim for at least 150 minutes of moderate-intensity exercise per week...",
-      category: "Exercise",
-      lastUpdated: "2023-06-05",
-    },
-  ]
-
-  // Filter content based on search query and active tab
-  const getFilteredContent = () => {
-    let content = []
-
-    switch (activeTab) {
-      case "health-tips":
-        content = healthTips
-        break
-      case "articles":
-        content = articles
-        break
-      case "chatbot":
-        content = chatbotResponses
-        break
-      default:
-        content = healthTips
+  useEffect(() => {
+    // Check for authentication token
+    const token = localStorage.getItem('token')
+    if (!token) {
+      // Redirect to login page if no token is found
+      window.location.href = '/login'
+      return // Stop execution of the rest of the effect
     }
 
-    if (!searchQuery) return content
+    fetchContents()
+  }, [])
 
-    return content.filter(
-      (item) =>
-        item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.query?.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+  const fetchContents = async () => {
+    setLoading(true)
+    try {
+      const response = await api.get<Content[]>('/contents')
+      setContents(response.data)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to load content.')
+    } finally {
+      setLoading(false)
+    }
   }
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setForm({ ...form, [id]: value })
+  }
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm({ ...form, status: e.target.value })
+  }
+
+  const handleCreateContent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await api.post('/contents', form)
+      setIsModalOpen(false)
+      setForm({ title: '', body: '', status: 'draft' })
+      fetchContents() // Refresh the list
+    } catch (err: any) {
+      alert('Failed to create content: ' + (err.response?.data?.message || err.message))
+    }
+  }
+
+  const handleEditContent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentContent) return
+    try {
+      await api.put(`/contents/${currentContent.id}`, form)
+      setIsModalOpen(false)
+      setForm({ title: '', body: '', status: 'draft' })
+      setCurrentContent(null)
+      fetchContents() // Refresh the list
+    } catch (err: any) {
+      alert('Failed to update content: ' + (err.response?.data?.message || err.message))
+    }
+  }
+
+  const handleDeleteContent = async (contentId: number) => {
+    if (confirm('Are you sure you want to delete this content?')) {
+      try {
+        await api.delete(`/contents/${contentId}`)
+        fetchContents() // Refresh the list
+      } catch (err: any) {
+        alert('Failed to delete content: ' + (err.response?.data?.message || err.message))
+      }
+    }
+  }
+
+  const openCreateModal = () => {
+    setCurrentContent(null) // Ensure no content is selected for editing
+    setForm({ title: '', body: '', status: 'draft' }) // Reset form
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (content: Content) => {
+    setCurrentContent(content)
+    setForm({ title: content.title, body: content.body, status: content.status })
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setCurrentContent(null)
+    setForm({ title: '', body: '', status: 'draft' })
+  }
+
+  if (loading) return <div className="container mx-auto py-10">Loading content...</div>
+  if (error) return <div className="container mx-auto py-10 text-red-500">Error: {error}</div>
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Content Management</h1>
-        <Button asChild>
-          <Link href="/admin/content/create">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create Content
-          </Link>
-        </Button>
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">My Content</h1>
+        <Button onClick={openCreateModal}>Add New Content</Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Manage Content</CardTitle>
-          <CardDescription>Create, edit, and publish content for the FitLife Monitor platform</CardDescription>
+      <div className="grid gap-6">
+        {contents.length > 0 ? (
+          contents.map((content) => (
+            <Card key={content.id}>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>{content.title}</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => openEditModal(content)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" color="destructive" onClick={() => handleDeleteContent(content.id)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="health-tips" className="w-full" onValueChange={setActiveTab}>
-            <div className="flex justify-between items-center mb-4">
-              <TabsList>
-                <TabsTrigger value="health-tips" className="flex items-center">
-                  <Lightbulb className="mr-2 h-4 w-4" />
-                  Health Tips
-                </TabsTrigger>
-                <TabsTrigger value="articles" className="flex items-center">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Articles
-                </TabsTrigger>
-                <TabsTrigger value="chatbot" className="flex items-center">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Chatbot Responses
-                </TabsTrigger>
-              </TabsList>
+                <CardDescription className="whitespace-pre-wrap">{content.body}</CardDescription>
+                <p className="text-sm text-muted-foreground mt-2">Status: {content.status}</p>
+                <p className="text-sm text-muted-foreground">Created: {new Date(content.created_at).toLocaleString()}</p>
+                {content.user && (
+                  <p className="text-sm text-muted-foreground">Author: {content.user.name}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p>No content created yet.</p>
+        )}
+      </div>
 
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      {/* Add/Edit Content Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{currentContent ? 'Edit Content' : 'Create New Content'}</DialogTitle>
+            <DialogDescription>
+              {currentContent ? 'Edit the details of your content.' : 'Fill in the details to create new content.'}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={currentContent ? handleEditContent : handleCreateContent}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Title</Label>
                   <Input
-                    type="search"
-                    placeholder="Search content..."
-                    className="pl-8 w-[250px]"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
-                  <span className="sr-only">Filter</span>
-                </Button>
+                  id="title"
+                  value={form.title}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-            </div>
-
-            <TabsContent value="health-tips" className="mt-0">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Published</TableHead>
-                      <TableHead>Views</TableHead>
-                      <TableHead className="w-[60px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getFilteredContent().map((tip) => (
-                      <TableRow key={tip.id}>
-                        <TableCell className="font-medium">{tip.title}</TableCell>
-                        <TableCell>{tip.category}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              tip.status === "published" ? "default" : tip.status === "draft" ? "outline" : "secondary"
-                            }
-                          >
-                            {tip.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{tip.author}</TableCell>
-                        <TableCell>{tip.publishDate}</TableCell>
-                        <TableCell>{tip.views}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View</DropdownMenuItem>
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              {tip.status !== "published" ? (
-                                <DropdownMenuItem>Publish</DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem>Unpublish</DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="grid gap-2">
+                <Label htmlFor="body">Body</Label>
+                <Textarea
+                  id="body"
+                  value={form.body}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-            </TabsContent>
-
-            <TabsContent value="articles" className="mt-0">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Published</TableHead>
-                      <TableHead>Views</TableHead>
-                      <TableHead className="w-[60px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getFilteredContent().map((article) => (
-                      <TableRow key={article.id}>
-                        <TableCell className="font-medium">{article.title}</TableCell>
-                        <TableCell>{article.category}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              article.status === "published"
-                                ? "default"
-                                : article.status === "draft"
-                                  ? "outline"
-                                  : "secondary"
-                            }
-                          >
-                            {article.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{article.author}</TableCell>
-                        <TableCell>{article.publishDate}</TableCell>
-                        <TableCell>{article.views}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View</DropdownMenuItem>
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              {article.status !== "published" ? (
-                                <DropdownMenuItem>Publish</DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem>Unpublish</DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Status</Label>
+                <select
+                  id="status"
+                  value={form.status}
+                  onChange={handleStatusChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </select>
               </div>
-            </TabsContent>
-
-            <TabsContent value="chatbot" className="mt-0">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Query</TableHead>
-                      <TableHead>Response Preview</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Last Updated</TableHead>
-                      <TableHead className="w-[60px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getFilteredContent().map((response) => (
-                      <TableRow key={response.id}>
-                        <TableCell className="font-medium">{response.query}</TableCell>
-                        <TableCell className="max-w-[300px] truncate">{response.response}</TableCell>
-                        <TableCell>{response.category}</TableCell>
-                        <TableCell>{response.lastUpdated}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View Full Response</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Response</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
               </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+            <DialogFooter>
+              <Button type="submit">{currentContent ? 'Save Changes' : 'Create Content'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

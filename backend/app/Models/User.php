@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\Contracts\OAuthenticatable;
+use App\Models\Content;
+use App\Models\BmiHistory;
+use App\Models\Activity;
 
 class User extends Authenticatable implements OAuthenticatable
 {
@@ -67,5 +70,20 @@ class User extends Authenticatable implements OAuthenticatable
     public function workouts()
     {
         return $this->hasMany(Workout::class);
+    }
+
+    public function contents()
+    {
+        return $this->hasMany(Content::class);
+    }
+
+    public function bmiHistory()
+    {
+        return $this->hasMany(BmiHistory::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
     }
 }

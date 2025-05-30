@@ -185,7 +185,7 @@ export default function DashboardPage() {
               Create, view, edit, and delete your personal content.
             </p>
             <Button size="sm" className="w-full" asChild>
-              <Link href="/content">
+              <Link href="/dashboard/content">
                 <div className="flex items-center">
                   Manage Content <ArrowRight className="ml-2 h-4 w-4" />
                 </div>

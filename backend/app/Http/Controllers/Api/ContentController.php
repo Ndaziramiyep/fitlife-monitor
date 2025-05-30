@@ -16,9 +16,19 @@ class ContentController extends Controller
      */
     public function index()
     {
-        // Only retrieve content for the authenticated user
-        // Eager load the user relationship to get author information
-        $contents = Auth::user()->contents()->with('user')->latest()->get();
+        $user = Auth::user();
+
+        if ($user->is_admin) {
+            // Admin can view all content
+            $contents = Content::with('user')->latest()->get();
+        } else {
+            // Regular user can view published content by anyone and their own content
+            $contents = Content::where('status', 'published')
+                               ->orWhere('user_id', $user->id)
+                               ->with('user')
+                               ->latest()
+                               ->get();
+        }
 
         return response()->json($contents);
     }

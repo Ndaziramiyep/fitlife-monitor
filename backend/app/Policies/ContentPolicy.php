@@ -13,7 +13,7 @@ class ContentPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Users can view their own content
+        // The index method in the controller handles fetching the correct set of content
         return true;
     }
 
@@ -22,8 +22,9 @@ class ContentPolicy
      */
     public function view(User $user, Content $content): bool
     {
-        // Users can view their own content, admins can view all content
-        return $user->is_admin || $user->id === $content->user_id;
+        // Admins can view all content.
+        // Regular users can view their own content or any published content.
+        return $user->is_admin || $user->id === $content->user_id || $content->status === 'published';
     }
 
     /**
@@ -58,7 +59,7 @@ class ContentPolicy
      */
     public function restore(User $user, Content $content): bool
     {
-        //
+        // Only admins can restore content
         return $user->is_admin;
     }
 
@@ -67,7 +68,7 @@ class ContentPolicy
      */
     public function forceDelete(User $user, Content $content): bool
     {
-        //
+        // Only admins can permanently delete content
         return $user->is_admin;
     }
 

@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Activity;
 use Illuminate\Support\Str;
+use App\Http\Controllers\AdminReportController;
 
 Route::post('/register', function (Request $request) {
     try {
@@ -217,7 +218,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/activities/{id}', [App\Http\Controllers\Admin\AdminController::class, 'deleteActivity']);
 
     // Content management routes
-    Route::apiResource('contents', Api\ContentController::class);
+    Route::apiResource('contents', App\Http\Controllers\Api\ContentController::class);
+
+    // Admin report routes
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin/users/{user}/report', [AdminReportController::class, 'generateUserReport']);
+    });
 });
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {

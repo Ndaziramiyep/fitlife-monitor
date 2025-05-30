@@ -33,9 +33,17 @@ const PERMISSIONS = [
   { key: "delete", label: "Delete" },
 ];
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  is_admin: boolean;
+  permissions?: { [key: string]: boolean } | null;
+}
+
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<any[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -47,9 +55,23 @@ export default function AdminUsersPage() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  const fetchUsers = async () => {
+    try {
+      // Fetch all users (admin only endpoint)
+      const response = await api.get<User[]>('/users');
+      setUsers(response.data);
+      setFilteredUsers(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to fetch users.');
+      console.error("Error fetching users:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     // Filter users based on search query
@@ -59,17 +81,6 @@ export default function AdminUsersPage() {
     )
     setFilteredUsers(filtered)
   }, [searchQuery, users])
-
-  const fetchUsers = () => {
-    setLoading(true)
-    api.get("/users")
-      .then(res => {
-        setUsers(res.data)
-        setFilteredUsers(res.data)
-      })
-      .catch(() => setError("Failed to load users."))
-      .finally(() => setLoading(false))
-  }
 
   const handleCheckbox = (perm: string) => {
     setForm(f => ({ ...f, permissions: { ...f.permissions, [perm]: !f.permissions[perm] } }))
@@ -126,19 +137,25 @@ export default function AdminUsersPage() {
     }
   };
 
-  const openEdit = (user: any) => {
+  const openEdit = (user: User) => {
     setShowEdit(user.id)
     setForm({
       name: user.name,
       email: user.email,
       password: "",
-      permissions: PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: user.permissions ? !!user.permissions[p.key] : false }), {}),
+      permissions: PERMISSIONS.reduce((acc: { [key: string]: boolean }, p) => {
+        acc[p.key] = (user.permissions && user.permissions[p.key]) ?? false;
+        return acc;
+      }, {} as { [key: string]: boolean }),
     })
   }
 
-  const openPermEdit = (user: any) => {
+  const openPermEdit = (user: User) => {
     setShowPermEdit(user.id)
-    setPermEditForm(PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.key]: user.permissions ? !!user.permissions[p.key] : false }), {}))
+    setPermEditForm(PERMISSIONS.reduce((acc: { [key: string]: boolean }, p) => {
+      acc[p.key] = (user.permissions && user.permissions[p.key]) ?? false;
+      return acc;
+    }, {} as { [key: string]: boolean }))
   }
 
   const handlePermCheckbox = (perm: string) => {
@@ -155,7 +172,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleAdminToggle = async (user: any) => {
+  const handleAdminToggle = async (user: User) => {
     setActionLoading(user.id);
     setActionError(null);
     try {
@@ -170,8 +187,45 @@ export default function AdminUsersPage() {
     }
   };
 
-  if (loading) return <div>Loading users...</div>
-  if (error) return <div>{error}</div>
+  const handleDownloadReport = async (userId: number) => {
+    try {
+      // Call the backend endpoint to generate the report
+      const response = await api.get(`/admin/users/${userId}/report`, {
+        responseType: 'blob' // Important for downloading files
+      });
+
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+
+      // Create a link element and trigger a download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // Extract filename from headers if available, otherwise use a default name
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'report.json'; // Default filename
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (err: any) {
+      alert('Failed to download report: ' + (err.response?.data?.message || err.message));
+      console.error("Error downloading report:", err);
+    }
+  };
+
+  if (loading) return <div className="container mx-auto py-10">Loading users...</div>
+  if (error) return <div className="container mx-auto py-10 text-red-500">Error: {error}</div>
 
   return (
     <div className="container mx-auto py-10">
@@ -240,6 +294,7 @@ export default function AdminUsersPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleDownloadReport(user.id)} disabled={actionLoading === user.id}>Download Report</Button>
                         <Button size="sm" onClick={() => openEdit(user)} className="mr-2" disabled={actionLoading === user.id}>Edit</Button>
                         <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)} disabled={actionLoading === user.id}>Delete</Button>
                       </div>

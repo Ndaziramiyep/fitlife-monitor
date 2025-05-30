@@ -1,129 +1,151 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import api from "@/src/services/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit } from "lucide-react";
+import { useEffect, useState } from "react"
+import api from "@/src/services/api"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Trash2, Edit } from "lucide-react"
 
 interface Content {
-  id: number;
-  user_id: number;
-  title: string;
-  body: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
+  id: number
+  user_id: number
+  title: string
+  body: string
+  status: string
+  created_at: string
+  updated_at: string
   user?: {
-    name: string;
-  };
+    name: string
+  }
+}
+
+interface User {
+  id: number;
+  name: string;
+  is_admin: boolean;
 }
 
 export default function ContentManagementPage() {
-  const [contents, setContents] = useState<Content[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentContent, setCurrentContent] = useState<Content | null>(null); // For editing
+  const [contents, setContents] = useState<Content[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentContent, setCurrentContent] = useState<Content | null>(null) // For editing
   const [form, setForm] = useState({
     title: '',
     body: '',
     status: 'draft', // Default status
-  });
+  })
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     // Check for authentication token
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (!token) {
       // Redirect to login page if no token is found
-      window.location.href = '/login';
-      return; // Stop execution of the rest of the effect
+      window.location.href = '/login'
+      return // Stop execution of the rest of the effect
     }
 
-    fetchContents();
+    // Fetch current user
+    const fetchUser = async () => {
+        try {
+            const userRes = await api.get('/user');
+            setCurrentUser(userRes.data);
+        } catch (err) {
+            console.error("Failed to fetch user:", err);
+            // Handle error, maybe redirect to login if user fetch fails
+            window.location.href = '/login';
+        }
+    };
+
+    fetchUser();
+    fetchContents(); // Fetch content after attempting to fetch user
+
   }, []);
 
   const fetchContents = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await api.get<Content[]>('/contents');
-      setContents(response.data);
+      const response = await api.get<Content[]>('/contents')
+      setContents(response.data)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load content.');
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setForm({ ...form, [id]: value });
-  };
+    const { id, value } = e.target
+    setForm({ ...form, [id]: value })
+  }
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setForm({ ...form, status: e.target.value });
-  };
+    setForm({ ...form, status: e.target.value })
+  }
 
   const handleCreateContent = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      await api.post('/contents', form);
-      setIsModalOpen(false);
-      setForm({ title: '', body: '', status: 'draft' });
-      fetchContents(); // Refresh the list
+      await api.post('/contents', form)
+      setIsModalOpen(false)
+      setForm({ title: '', body: '', status: 'draft' })
+      fetchContents() // Refresh the list
     } catch (err: any) {
-      alert('Failed to create content: ' + (err.response?.data?.message || err.message));
+      alert('Failed to create content: ' + (err.response?.data?.message || err.message))
     }
-  };
+  }
 
   const handleEditContent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentContent) return;
+    e.preventDefault()
+    if (!currentContent) return
     try {
-      await api.put(`/contents/${currentContent.id}`, form);
-      setIsModalOpen(false);
-      setForm({ title: '', body: '', status: 'draft' });
-      setCurrentContent(null);
-      fetchContents(); // Refresh the list
+      await api.put(`/contents/${currentContent.id}`, form)
+      setIsModalOpen(false)
+      setForm({ title: '', body: '', status: 'draft' })
+      setCurrentContent(null)
+      fetchContents() // Refresh the list
     } catch (err: any) {
-      alert('Failed to update content: ' + (err.response?.data?.message || err.message));
+      alert('Failed to update content: ' + (err.response?.data?.message || err.message))
     }
-  };
+  }
 
   const handleDeleteContent = async (contentId: number) => {
     if (confirm('Are you sure you want to delete this content?')) {
       try {
-        await api.delete(`/contents/${contentId}`);
-        fetchContents(); // Refresh the list
+        await api.delete(`/contents/${contentId}`)
+        fetchContents() // Refresh the list
       } catch (err: any) {
-        alert('Failed to delete content: ' + (err.response?.data?.message || err.message));
+        alert('Failed to delete content: ' + (err.response?.data?.message || err.message))
       }
     }
-  };
+  }
 
   const openCreateModal = () => {
-    setCurrentContent(null); // Ensure no content is selected for editing
-    setForm({ title: '', body: '', status: 'draft' }); // Reset form
-    setIsModalOpen(true);
-  };
+    setCurrentContent(null) // Ensure no content is selected for editing
+    setForm({ title: '', body: '', status: 'draft' }) // Reset form
+    setIsModalOpen(true)
+  }
 
   const openEditModal = (content: Content) => {
-    setCurrentContent(content);
-    setForm({ title: content.title, body: content.body, status: content.status });
-    setIsModalOpen(true);
-  };
+    setCurrentContent(content)
+    setForm({ title: content.title, body: content.body, status: content.status })
+    setIsModalOpen(true)
+  }
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setCurrentContent(null);
-    setForm({ title: '', body: '', status: 'draft' });
-  };
+    setIsModalOpen(false)
+    setCurrentContent(null)
+    setForm({ title: '', body: '', status: 'draft' })
+  }
 
-  if (loading) return <div className="container mx-auto py-10">Loading content...</div>;
+  if (loading) return <div className="container mx-auto py-10">Loading content...</div>
+  if (!currentUser || loading) return <div className="container mx-auto py-10">Loading user data...</div>;
   if (error) return <div className="container mx-auto py-10 text-red-500">Error: {error}</div>;
 
   return (
@@ -140,18 +162,22 @@ export default function ContentManagementPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{content.title}</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditModal(content)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" color="destructive" onClick={() => handleDeleteContent(content.id)}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
+                  {(currentUser.is_admin || currentUser.id === content.user_id) && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => openEditModal(content)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" color="destructive" onClick={() => handleDeleteContent(content.id)}>
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </CardHeader>
-              <CardContent>
+        </CardHeader>
+        <CardContent>
                 <CardDescription className="whitespace-pre-wrap">{content.body}</CardDescription>
                 <p className="text-sm text-muted-foreground mt-2">Status: {content.status}</p>
-                 <p className="text-sm text-muted-foreground">Created: {new Date(content.created_at).toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">Created: {new Date(content.created_at).toLocaleString()}</p>
                 {content.user && (
                   <p className="text-sm text-muted-foreground">Author: {content.user.name}</p>
                 )}
@@ -176,7 +202,7 @@ export default function ContentManagementPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="title">Title</Label>
-                <Input
+                  <Input
                   id="title"
                   value={form.title}
                   onChange={handleInputChange}
@@ -205,7 +231,7 @@ export default function ContentManagementPage() {
                   <option value="archived">Archived</option>
                 </select>
               </div>
-            </div>
+              </div>
             <DialogFooter>
               <Button type="submit">{currentContent ? 'Save Changes' : 'Create Content'}</Button>
             </DialogFooter>
@@ -213,5 +239,5 @@ export default function ContentManagementPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 } 
